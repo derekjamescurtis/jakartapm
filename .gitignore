@@ -1,0 +1,17 @@
+# temp/log files
+*~
+*.old
+*.bak
+*.log
+
+# build-generated
+MYMETA.yml
+MYMETA.json
+META.yml
+Makefile
+blib/
+inc/
+
+# eclipse 
+.includepath
+.project
