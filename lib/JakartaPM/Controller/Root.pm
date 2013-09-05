@@ -1,13 +1,10 @@
 package JakartaPM::Controller::Root;
 use Moose;
 use namespace::autoclean;
+use JakartaPM::Forms::ContactForm;
 
 BEGIN { extends 'Catalyst::Controller' }
 
-#
-# Sets the actions in this controller to be registered with no prefix
-# so they function identically to actions created in MyApp.pm
-#
 __PACKAGE__->config(namespace => '');
 
 =encoding utf-8
@@ -30,9 +27,10 @@ The root page (/)
 
 sub index :Path :Args(0) {
     my ( $self, $c ) = @_;
-
-    # Hello World
-    $c->response->body( $c->welcome_message );
+    
+    
+    
+    
 }
 
 =head2 default
@@ -58,6 +56,8 @@ sub end : ActionClass('RenderView') {}
 =head1 AUTHOR
 
 Derek J. Curtis <djcurtis@summersetsoftware.com>
+Summerset Software, LLC
+http://www.summersetsoftware.com
 
 =head1 LICENSE
 

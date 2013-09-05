@@ -1,6 +1,6 @@
 [% IF template.name.match('^(robots.txt|sitemap.xml|favicon.ico)$');
     content;
   ELSE;
-    content WRAPPER common/html.tt2;
+    content WRAPPER common/html.html;
   END;
 -%]

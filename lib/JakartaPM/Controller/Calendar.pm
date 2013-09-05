@@ -33,7 +33,9 @@ sub index :Path :Args(0) {
 
 =head1 AUTHOR
 
-A clever guy
+Derek J. Curtis <djcurtis@summersetsoftware.com>
+Summerset Software, LLC
+http://www.summersetsoftware.com
 
 =head1 LICENSE
 

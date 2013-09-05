@@ -12,7 +12,7 @@ This site will have a small number of features (users, calendar, news), I'll try
 
 * News
 ** Trusted site admins can post site news/announcements
-** Authenticated users will be permitted to post comments -- considering using disqus
+** Authenticated users will be permitted to post comments -- considering using discuss
 ** Comments can be moderated by trusted users
 ** Authenticated users can flag comments they see as inappropriate
 * Event Calendar
@@ -20,7 +20,16 @@ This site will have a small number of features (users, calendar, news), I'll try
 * i18n support + translation files for both English and Bahasa
 ** demonstrate how to localize urls as well
 * Authentication through Catalyst::Plugin::Authentication 
+** Demonstrate proper storage of password data
+** Demonstrate custom user model class for authentication
 * Use of HTML::FormHandler for all forms processing
 * TemplateToolkit template usage/configuration
 * Demonstrate AJAX usage within the framework
 * Demonstrate e-mailer + account verification functions with sendmail
+
+
+Rebuilding The Database Schema
+--------
+
+(On Windows.. on OSx or Linux just reverse the slash in script\jakartapm...)
+perl script\jakartapm_create.pl model SiteDB DBIC::Schema JakartaPM::Schema::SiteDB create=static dbi:mysql:jakartapm root

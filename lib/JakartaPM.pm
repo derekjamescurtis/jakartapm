@@ -25,7 +25,11 @@ use Catalyst qw/
     Session::State::Cookie
     Unicode::Encoding
     RequireSSL
+    Authentication
+    Authorization::Roles
 /;
+    # Authentication
+    # Authentication::Roles
 
 extends 'Catalyst';
 

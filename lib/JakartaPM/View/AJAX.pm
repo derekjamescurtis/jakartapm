@@ -1,23 +1,28 @@
-package JakartaPM::View::HTML;
+package JakartaPM::View::AJAX;
 use Moose;
 use namespace::autoclean;
 
 extends 'Catalyst::View::TT';
 
+=head1 NAME
+
+JakartaPM::View::AJAX - Catalyst View
+
+=head1 DESCRIPTION
+
+Catalyst View.
+
+=cut
+
 __PACKAGE__->config(
     TEMPLATE_EXTENSION => '.tt2',
     CATALYST_VAR => 'c', # this defaults to c anyway, so it doesn't need to be explitially set
     render_die  => 1,
-    WRAPPER     => 'common/wrapper',
-    ERROR       => 'error.tt2',
-    TIMER       => 1, # a debugging feature that will put 
-    PRE_CHOMP   => 1, # remove newlines before template tags
-    POST_CHOMP  => 1, # remove newlines after template tags 
 );
 
 =head1 NAME
 
-JakartaPM::View::HTML - TT View for JakartaPM
+JakartaPM::View::AJAX - TT View for JakartaPM
 
 =head1 DESCRIPTION
 
@@ -41,3 +46,4 @@ it under the same terms as Perl itself.
 =cut
 
 1;
+

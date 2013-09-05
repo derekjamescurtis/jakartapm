@@ -1,0 +1,82 @@
+
+<nav>
+	<ul>
+		<li><a href='#'>Home</a></li>
+		<li><a href='#'>About</a></li>
+		<li><a href='#'>News</a></li>
+		<li><a href='#'>Events</a></li>
+		<li><a href='#'>Contact</a></li>
+	</ul>
+</nav>
+
+<div>
+	<h1>Index</h1>
+</div>
+<div>
+	<h1>About</h1>
+</div>
+<div>
+	<h1>News</h1>
+</div>
+<div>
+	<h1>Events</h1>
+</div>
+<div>
+	<h1>Contact</h1>
+	<div id='contact-container'></div>
+</div>
+
+
+[% BLOCK post_js_includes %]
+<script>
+
+	function get_contact_form(){
+		
+		$.ajax({
+			url: "[% c.uri_for(c.controller('AJAX').action_for('contact_form'))%]"
+			}).done(function(data){
+				$('#contact-container').html(data);
+				
+				$('#contact-container > form').submit(function(){
+					submit_contact_form();			
+					return false;
+				})
+				
+			})
+			  .fail(function(data){ })
+			  .always(function(data, status, jqXHR){});
+		
+		
+		
+	}
+	function submit_contact_form(){
+				
+		// need to submit the ajax shit		
+		var name 	= $('#name').val();
+		var email 	= $('#email').val();
+		var message = $('#message').val();
+		
+		$.ajax({
+			type: "POST",
+			data: { 'name':name, 'email':email, 'message':message },
+			url: "[% c.uri_for(c.controller('AJAX').action_for('contact_form'))%]"})
+			.done(function(data){
+				alert('omfg! we got your message =D');
+				
+				// clear the form
+				$('#contact-container').html('<p>Thanks for your message!  We will respond soon!  Probably.</p>');				
+			})
+		   	.fail(function(data){
+		   		alert(data);
+		   	})
+		    .always(function(data, status, jqXHR){
+		    	
+		    });
+	}
+	
+	$(document).ready(function(){
+		get_contact_form();
+	});
+
+</script>
+[% END %]
