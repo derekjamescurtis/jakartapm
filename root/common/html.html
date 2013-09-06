@@ -26,6 +26,17 @@
 		    <a href='[% c.uri_for(c.controller('Members').action_for('login')) %]'>Login</a>
 		    [% END %]
     	</nav>
+    	
+    	<nav>    	
+			<ul>
+				<li><a href='[% c.uri_for(c.controller("Root").action_for("index")) %]'>Home</a></li>
+				<li><a href='[% c.uri_for(c.controller("Root").action_for("about")) %]'>About</a></li>
+				<li><a href='[% c.uri_for(c.controller("Root").action_for("news")) %]'>News</a></li>
+				<li><a href='[% c.uri_for(c.controller("Root").action_for("events")) %]'>Events</a></li>
+				<li><a href='[% c.uri_for(c.controller("Root").action_for("contact")) %]'>Contact</a></li>
+			</ul>
+		</nav>
+    	
     </header> 
 
     <div class='container'>    
@@ -60,8 +71,8 @@
       <!-- TODO: add cdn + minified javascript -->
     [% END %]
 
-	[% PROCESS post_js_includes %]
 
+	[% post_js_includes %]
 
   </body>
 </html>

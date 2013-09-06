@@ -1,7 +1,7 @@
 package JakartaPM::Controller::AJAX;
 use Moose;
 use namespace::autoclean;
-use JakartaPM::Forms::ContactForm;
+use JakartaPM::Forms::Contact;
 
 BEGIN { extends 'Catalyst::Controller'; }
 
@@ -26,7 +26,7 @@ else.
 sub contact_form :Path('contact') :Args(0) {
     my ($self, $c) = @_;
     
-    my $f = JakartaPM::Forms::ContactForm->new();
+    my $f = JakartaPM::Forms::Contact->new();
     
     if ($c->request->method eq 'POST') {
         
@@ -55,17 +55,15 @@ sub contact_form :Path('contact') :Args(0) {
 }
 
 
+=head2 end
+
+
+
+=cut
 sub end :ActionClass('RenderView') {
     my ($self, $c) = @_;
     
-    # Because we're using HTML as our default view class
-    # we need to explicitally tell Catalyst that we want to render
-    # actions in this controller using the AJAX view.  
-    # However, if one of our action methods manually sets the response body
-    # content, then we don't forward on to any view.. we just send that data
-    # back along with the request.
-    $c->forward($c->view('AJAX')) unless $c->response->body;
-    
+    $c->forward($c->view('AJAX')) unless $c->response->body;    
 }
 
 =encoding utf8

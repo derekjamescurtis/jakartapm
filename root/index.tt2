@@ -1,13 +1,5 @@
 
-<nav>
-	<ul>
-		<li><a href='#'>Home</a></li>
-		<li><a href='#'>About</a></li>
-		<li><a href='#'>News</a></li>
-		<li><a href='#'>Events</a></li>
-		<li><a href='#'>Contact</a></li>
-	</ul>
-</nav>
+
 
 <div>
 	<h1>Index</h1>
@@ -27,7 +19,7 @@
 </div>
 
 
-[% BLOCK post_js_includes %]
+[% post_js_includes = BLOCK %]
 <script>
 
 	function get_contact_form(){

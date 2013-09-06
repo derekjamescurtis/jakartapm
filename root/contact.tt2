@@ -1,0 +1,6 @@
+<h1>Contact</h1>
+
+[% form.render %]
+
+[% post_js_includes = BLOCK %]
+[% END %]

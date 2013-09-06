@@ -267,6 +267,66 @@ __PACKAGE__->has_many(
 # Created by DBIx::Class::Schema::Loader v0.07036 @ 2013-09-05 03:13:04
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:vF1j2oD3UFId5rbK7/24Jw
 
+use Carp;
+use Data::Dumper;
+
+
+=head1 CLASS METHODS
+=cut
+
+=head2 create_user(username, password, email)
+=cut
+sub create_user {
+    my %args = @_;
+    
+    # make sure we have all the parameters we're looking for
+    my ($un, $pwd, $email) = ($args{username}, $args{password}, $args{email});
+    unless ($un && $pwd && $email) {
+        carp "username, password and email are all required named parameters.\nArgs received:\n " . Dumper(%args);
+        return undef;    
+    }
+    
+    
+    # make sure that e-mail is valid, username meets requirements.  
+    # We'll assume that the password has been validated to meet 
+    # strenght requirements 
+    # TODO: we should really perform validation here again. 
+    
+    # username, e-mail address, password
+    
+    
+    
+}
+
+=head2 create_superuser()
+
+Similar to the create_user method, but this user does not have to verify their e-mail
+address as it's assumed that this user is fully trusted.
+
+=cut
+sub create_superuser {
+    my %args = @_;
+}
+
+=head2 set_password
+
+=cut
+sub set_password {
+    my $self = shift;
+    my %args = @_;
+    
+    
+    
+    
+}
+
+=head2 generate_confirmation_key()
+
+=cut
+sub generate_confirmation_key {
+    my $self = shift;
+}
+
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration
 __PACKAGE__->meta->make_immutable;

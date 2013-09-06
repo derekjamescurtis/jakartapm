@@ -18,16 +18,20 @@ requires 'Moose';
 requires 'namespace::autoclean';
 requires 'Config::General';
 
-# required specifically for our app
+# A specialized view for rendering TemplateToolkit based templates
 requires 'Catalyst::View::TT' => '0.41';
-requires 'Email::Valid' => '0.190';
 
 # First is the driver to connect to our chosen database.  The second is used to regenerate our model classes if we change the schema
 requires 'DBD::mysql' => '4.023';
 requires 'Catalyst::Model::DBIC::Schema' => '0.61';
+requires 'DateTime::Format::MySQL' => '0.04';
 
 # web forms (don't code your own!)
 requires 'HTML::FormHandler' => '0.40027';
+requires 'Email::Valid' => '0.190'; # required for automatic validation of e-mail fields
+
+# email sending
+requires 'Catalyst::Plugin::Email' => '0.08';
 
 # session handling
 # There are many different plugins that will all give you session support. 

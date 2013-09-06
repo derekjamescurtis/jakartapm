@@ -1,7 +1,8 @@
 package JakartaPM::Controller::Root;
 use Moose;
 use namespace::autoclean;
-use JakartaPM::Forms::ContactForm;
+use JakartaPM::Forms::Contact;
+use DateTime;
 
 BEGIN { extends 'Catalyst::Controller' }
 
@@ -28,10 +29,112 @@ The root page (/)
 sub index :Path :Args(0) {
     my ( $self, $c ) = @_;
     
-    
-    
+    $c->email(
+        header => [
+            To      => 'djcurtis@summersetsoftware.com',
+            #From    => 'djcurtis@summersetsoftware.com',
+            Subject => 'A TT Email',
+        ],
+        body => 'BALLSLLLSLSLS',
+    );
     
 }
+
+=head2 about
+
+=cut
+sub about :Path('about') :Args(0) {
+    my ( $self, $c ) = @_;
+}
+
+=head2 news
+
+=cut
+sub news :Path('news') :Args(0) {
+    my ( $self, $c ) = @_;
+    
+    # todo: get the news articles in descending order
+}
+
+=head2 events
+
+By default, we'll let people access our events calendar without specifying a year/month in the URL. 
+If they don't, then we'll assume they want to see the current year/month.
+
+=cut
+sub events :Path('events') :Args(0) {
+    my ( $self, $c ) = @_;
+    
+    my $dt = DateTime->now();
+    my $action = $c->controller->action_for('events_for_year_month');
+    
+    # in this case, we actually turn the processing over to the events_for_year_months action so we keep our code dry
+    $c->detach($action, [ $dt->year(), $dt->month() ]);
+}
+
+=head2 events_for_year_month
+
+    URL: /events/{year}/{month}
+=cut
+sub events_for_year_month :Path('events') :Args(2) {
+    my ( $self, $c, $year, $month ) = @_;
+    
+    my $dt = DateTime->new(month => $month, year => $year);
+    # these are used for navigation forward/back months in the calendar
+    my $prev = $dt->clone->subtract(months => 1);
+    my $next = $dt->clone->add(months => 1);
+    
+    $c->stash(
+        date => $dt,
+        prev_date => $prev,
+        next_date => $next,
+        template => 'events.tt2',
+    );
+    
+}
+
+=head2 contact
+
+=cut
+sub contact :Path('contact') :Args(0) {
+    my ( $self, $c ) = @_;
+    
+    my $f = JakartaPM::Forms::Contact->new();
+    
+    if ($c->req->method eq 'POST') {
+        
+        $f->process( params => $c->req->body_params );
+        
+        if ($f->validated()) {
+            
+            $c->email(
+                header => [
+                    To => 'djcurtis@summersetsoftware.com',
+                    Subject => 'ahaha',
+                ],
+                body => 'Hope this works..'
+            );
+            
+            $c->flash(status_msg => "Alright!  Your message has been sent.  We'll get back to you just as quickly as we can!");
+            
+            my $root_uri = $c->uri_for($c->controller->action_for('index'));
+            
+            $c->res->redirect($root_uri);
+            $c->detach();
+        }
+        else {
+            $c->flash(error_msg => "Hey.. there was a problem with some of the data you provided.. probably a type!  Don't you hate those?  Anyway, check the data you've entered and try again!");            
+        }
+        
+        
+    }
+    
+    
+    
+    $c->stash(form => $f);
+    
+}
+
 
 =head2 default
 

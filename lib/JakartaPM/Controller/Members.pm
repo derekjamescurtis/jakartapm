@@ -28,26 +28,19 @@ If they are not,they will be redirected to the login page.  A next=url query str
  
 The start of the processing chain for any actions that require a user to be logged in.  
 If the user is not logged in, they will be redirected to the login form, with a query parameter
-next appended.
+next appended that will be used to return the user to this current action
  
 =cut
 sub login_required :Chained('/') :PathPart('') :CaptureArgs(0) {
     my ($self, $c) = @_;
     
-    # user exists returns a true/false value if a user is currently logged in
-    if (!$c->user_exists) {
+    unless ($c->user_exists) {
         
-        # find the uri for the login action in this controller 
-        # then we add a hash reference that contains our return url
-        # this is because after the user authenticates, we want to automatically be able to send
-        # them back to whichever page they were trying to view         
-        my $login_uri = $c->uri_for($c->controller('Members')->action_for('login'), { next => $c->action });
+        my $next_uri    = $c->uri_for($c->action);          
+        my $login_action= $c->controller->action_for('login');
         
-        # in most cases, when we call catalyst's redirect method, we must ALSO 
-        # immediately afterwards call the detach method (with no arguments).
-        # this is because redirect does NOT halt processing on the rest of chain (including rendering a template)
-        # response->redirect only writes the redirect header to our response object.  Detach stops
-        # any further processing at this point. 
+        my $login_uri   = $c->uri_for($login_action, { next => $next_uri });
+        
         $c->response->redirect($login_uri);
         $c->detach();
     } 
@@ -61,26 +54,39 @@ sub edit_profile :Chained('login_required') :PathPart('profile/edit') :CaptureAr
 }
 
 =head2 
+
+Very simple method that just logs the current user out of the system, then returns them
+to the index page.
+
 =cut
 sub logout :Chained('login_required') :PathPart('logout') :Args(0) {
     my ($self, $c) = @_;
+    
+    $c->logout;
+    
+    my $root_uri = $c->uri_for($c->controller('Root')->action_for('index'));
+    
+    $c->response->redirect($root_uri);
+    $c->detach();
 }
 
 
 
-=head2
+=head2 anon_required
+
+Base of the processing chain for any actions that require the user NOT be logged in.
+
+Just does a simple check to see if the user is logged in already.. if they are, we log
+them out and push them back to the homepage.  
+
 =cut
 sub anon_required :Chained('/') :PathPart('') :CaptureArgs(0) {
     my ($self, $c) = @_;
     
-    # if the user exists.. then we push them back to an arbitrary page
-    # let's say, the start page, and tell them unfortunately they can't visit
-    # whichever page they were trying to get to
     if ($c->user_exists) {
-        $c->set_error_message('Sorry.  You can\'t access this page while logged in.');
         
-        # when resolving a uri that's outside the current controller, we have a slightly more verbose syntax
-        # than we saw in the login_required method earlier
+        $c->flash->{error_msg} = 'Sorry.  You can\'t access this page while logged in.';
+        
         my $site_root_uri = $c->uri_for($c->controller('Root')->action_for('index'));
                 
         $c->response->redirect($site_root_uri);
@@ -106,30 +112,87 @@ sub login :Chained('anon_required') :PathPart('login') :Args(0){
     if ($c->request->method eq 'POST') {
         
         if($c->request->body_params->{new_or_existing} eq 'new'){
-            # they're trying to register a new account
             
-            
-            # make sure their username + email is unique
-            # we could do that in the forms, but in a non-dbixclass i can't think of an easy way to do that..
-            # this validation should really go in our forms class though
+            $f->process(params => $c->req->body_params);
+            if ($f->validated) {
+                # make sure their username + email is unique
+                # we could do that in the forms, but in a non-dbixclass i can't think of an easy way to do that..
+                # this validation should really go in our forms class though
+                
+                # now we can create their new user object 
+                
+                # send confirmation e-mail
+                $c->flash->{status_msg} = "woo.. validated new user";
+                
+            }
+            else{
+                $c->flash->{error_msg} = 'poopie.. new validation failed';
+            }
             
         }
         else {
-            # they're trying to log into an existing account
-            
-            # set fields to be inactive
-            # $form->process( inactive => ['foo'] );
-            
-            
-        }
+            # Trying to log into existing account.
+            $f->process( params => $c->req->body_params, inactive => [ 'password_confirm', 'email', ] );                
+            if ($f->validated) {
+
+                $c->authenticate({ username => $f->value->{username}, password => $f->value->{password} });
+                
+                # now see if the user actually auth'd
+                if ($c->user_exists) {
+                    
+                    # also, make sure their account is in good standing (and they've confirmed their e-mail)
+                    if (!$c->user->get('is_active')) {
+                        $c->flash->{error_msg} = 
+                            "Hey, I'm really sorry, but your account has been disabled by my administrator.  " . 
+                            "You did something bad, didn't you?  =/  Maybe if you use the 'Contact Us' form and " .
+                            "send my administrator an e-mail and tell them you're REALLY sorry, they'll reinstate " .
+                            "your account.";                            
+                        $c->logout;
+                    }
+                    elsif (!$c->user->get('confirmation_date')) {     
+                        
+                        my $resend_conf_uri = $c->uri_for($c->controller->action_for('confirm_email_resend'));                                         
+                        $c->flash->{error_msg} = 
+                            "Aw shoot dawg.. You didn't confirm your e-mail address yet!  You know, we gotta watch " .
+                            "out for dem bots.. Hey, but if for some reason you can't find your confirmation e-mail " . 
+                            "(remember to check your Spam folder!).  We can always get you another one!  " . 
+                            "Just click <a href='${resend_conf_uri}'>here</a>.";                            
+                        $c->logout;
+                    } 
+                    else {
+                        # cool!!! 
+                        # there might be a 'next' query parameter that will be the URI they wanted..
+                        # otherwise, just shoot them back to the site root
+                        my $next_uri = $c->req->query_params->{next} || $c->uri_for($c->controller('Root')->action_for('index'));
+                        
+                        $c->response->redirect($next_uri);
+                    }                    
+                }
+                else {                    
+                    # bad username/password..
+                    my $pwd_reset_uri = $c->uri_for($c->controller->action_for('password_reset_request'));                    
+                    $c->flash->{error_msg} = 
+                        "Sorry, I don't recognize that username or password combination.  " .
+                        "If you're having trouble, you can reset your password from " . 
+                        "<a href='${pwd_reset_uri}'>this</a> page.";
+                }
+                
+            }
+            else {
+                # todo: get the actual form error message
+                $c->flash->{error_msg} = 'Oh snap, there was a problem with the form you submitted.  Please verify and try again.';
+            }   
+        }        
+        # todo: if we get to this point, i think we're just going to need to recreate the form instance
         
     }
     
-    
-
 
     $c->stash->{form} = $f;    
     
+}
+
+sub register :Chained('anon_required') :PathPart('register') :Args(0) {
     
 }
 

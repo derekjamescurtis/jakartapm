@@ -1,6 +1,8 @@
-package JakartaPM::Forms::ContactForm;
+package JakartaPM::Forms::Contact;
 use HTML::FormHandler::Moose;
 extends 'HTML::FormHandler';
+
+has '+is_html5' => (default => 1);
 
 has_field 'name' => ( type => 'Text', required => 1, minlength => 5, maxlength => 50);
 has_field 'email' => ( type => 'Email', required => 1 );
