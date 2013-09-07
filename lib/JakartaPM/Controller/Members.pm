@@ -2,6 +2,9 @@ package JakartaPM::Controller::Members;
 use Moose;
 use namespace::autoclean;
 use JakartaPM::Forms::LoginRegister;
+use JakartaPM::Forms::Register;
+use Crypt::SaltedHash;
+
 
 BEGIN { extends 'Catalyst::Controller'; }
 
@@ -31,6 +34,7 @@ If the user is not logged in, they will be redirected to the login form, with a 
 next appended that will be used to return the user to this current action
  
 =cut
+
 sub login_required :Chained('/') :PathPart('') :CaptureArgs(0) {
     my ($self, $c) = @_;
     
@@ -48,7 +52,9 @@ sub login_required :Chained('/') :PathPart('') :CaptureArgs(0) {
 }
 
 =head2 edit_profile
+
 =cut
+
 sub edit_profile :Chained('login_required') :PathPart('profile/edit') :CaptureArgs(0) {
     my ($self, $c) = @_;
 }
@@ -59,6 +65,7 @@ Very simple method that just logs the current user out of the system, then retur
 to the index page.
 
 =cut
+
 sub logout :Chained('login_required') :PathPart('logout') :Args(0) {
     my ($self, $c) = @_;
     
@@ -70,16 +77,21 @@ sub logout :Chained('login_required') :PathPart('logout') :Args(0) {
     $c->detach();
 }
 
+=head1 ANON REQUIRED ACTION METHODS
 
+The following actions can only be visited by users who are NOT currently logged in.
+This makes sense for things like registration pages, password reset pages, etc..
 
 =head2 anon_required
 
 Base of the processing chain for any actions that require the user NOT be logged in.
 
-Just does a simple check to see if the user is logged in already.. if they are, we log
-them out and push them back to the homepage.  
+Just does a simple check to see if the user is logged in already.. If they are logged
+in, we just push them back to the homepage and show them a simple message saying
+'hey bro.. you can't go here.'
 
 =cut
+
 sub anon_required :Chained('/') :PathPart('') :CaptureArgs(0) {
     my ($self, $c) = @_;
     
@@ -103,7 +115,10 @@ and makes sure their account is active and their e-mail address has been confirm
 This is actually a two part form that allows the user to either login with an existing account
 or to create a new account.
 
+TODO: need to make this login only form, not the login/register combo form.
+
 =cut
+
 sub login :Chained('anon_required') :PathPart('login') :Args(0){
     my ($self, $c) = @_;
     
@@ -192,8 +207,67 @@ sub login :Chained('anon_required') :PathPart('login') :Args(0){
     
 }
 
+
+=head2 register
+
+Displays a registration form to the user that prompts them for some basic information needed
+to create a user account (username, email and password).  
+
+On postback, if all their information validates, we create their new user object,
+send them a confirmation e-mail, and redirect them back to the homepage with a short message
+that tells them to go check their e-mail address.
+
+=cut
+
 sub register :Chained('anon_required') :PathPart('register') :Args(0) {
+    my ( $self, $c ) = @_;
     
+    my $f = JakartaPM::Forms::Register->new( catalyst => $c );
+    
+    if ( $c->req->method eq 'POST' ) {
+        
+        $f->process( params => $c->req->body_params );
+        
+        if ( $f->validated ) {
+            
+            # 1.) create the new user
+            my $u = $c->model('SiteDB::User')->create({ 
+               username     => $f->value->{username},
+               email        => $f->value->{email},
+               roles        => '',                        
+            });            
+            $u->set_password( password => $f->value->{password} );
+            my $conf_key = $u->generate_confirmation_key;
+            
+            # 2.) send the validation e-mail
+            my $conf_url = $c->uri_for($c->controller->action_for('confirm_email'), [ $conf_key ]);
+            $c->stash(
+                username => $f->value->{username},
+                confirmation_uri => $conf_url,
+                email => {
+                    to      => $f->value->{email},
+                    from    => $c->config->{'View::Email'}->{'default'}->{from},
+                    subject => 'Jakarta.pm.org - Confirm Your E-mail',
+                    template => 'confirm_email.tt2',
+                },
+            );
+            $c->forward( $c->view('Email::Template') );            
+            
+            # 3.) add a confirmation message to the session and
+            # redirect to the index page (message will be shown there)
+            $c->flash( status_msg => 'Thanks for registering!  We\'ve sent you a confirmation e-mail, ' . 
+                'so check your inbox (Pro Tip: If you don\'t see it, check your SPAM folder)!' );            
+            my $root_uri = $c->uri_for( $c->controller('Root')->action_for('index') );
+            $c->res->redirect( $root_uri );
+            $c->detach();
+        }
+        else {
+            # form didn't validate =(
+            $c->flash( error_msg => 'UGH.. common bro!  Check your form data again.' );            
+        }        
+    }
+    
+    $c->stash( form => $f );    
 }
 
 

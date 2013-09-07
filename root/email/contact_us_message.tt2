@@ -1,0 +1,10 @@
+<html>
+<head><title>blah</title></head>
+<body>
+<h1>Contact Us Message</h1>
+<p>From [% sender_name %] &lt;[% sender_email %]&gt;</p>
+<div>
+[% sender_message|html %]
+</div>
+</body>
+</html>

@@ -17,15 +17,6 @@ Catalyst Controller.
 =cut
 
 
-=head2 index
-
-=cut
-
-sub index :Path :Args(0) {
-    my ( $self, $c ) = @_;
-
-    $c->response->body('Matched JakartaPM::Controller::News in News.');
-}
 
 
 

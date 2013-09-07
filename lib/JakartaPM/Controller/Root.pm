@@ -29,14 +29,6 @@ The root page (/)
 sub index :Path :Args(0) {
     my ( $self, $c ) = @_;
     
-    $c->email(
-        header => [
-            To      => 'djcurtis@summersetsoftware.com',
-            #From    => 'djcurtis@summersetsoftware.com',
-            Subject => 'A TT Email',
-        ],
-        body => 'BALLSLLLSLSLS',
-    );
     
 }
 
@@ -52,7 +44,7 @@ sub about :Path('about') :Args(0) {
 =cut
 sub news :Path('news') :Args(0) {
     my ( $self, $c ) = @_;
-    
+       
     # todo: get the news articles in descending order
 }
 
@@ -76,26 +68,36 @@ sub events :Path('events') :Args(0) {
 
     URL: /events/{year}/{month}
 =cut
+
 sub events_for_year_month :Path('events') :Args(2) {
     my ( $self, $c, $year, $month ) = @_;
     
-    my $dt = DateTime->new(month => $month, year => $year);
-    # these are used for navigation forward/back months in the calendar
-    my $prev = $dt->clone->subtract(months => 1);
-    my $next = $dt->clone->add(months => 1);
+    my $dt      = DateTime->new(month => $month, year => $year);
+    my $prev    = $dt->clone->subtract(months => 1);
+    my $next    = $dt->clone->add(months => 1);
+    
+    # todo: get and stash our calendar events
     
     $c->stash(
-        date => $dt,
-        prev_date => $prev,
-        next_date => $next,
-        template => 'events.tt2',
+        date        => $dt,
+        prev_date   => $prev,
+        next_date   => $next,
+        template    => 'events.tt2',
     );
     
 }
 
 =head2 contact
 
+Dispalys a form that allows any user to send an e-mail to us without
+exposing our e-mail address publically.  The actual email address that receives
+this message can be found in this app's .conf file.
+
+On postback the data they've entered is validated, and if everything goes well
+is e-mailed to us!
+
 =cut
+
 sub contact :Path('contact') :Args(0) {
     my ( $self, $c ) = @_;
     
@@ -107,32 +109,34 @@ sub contact :Path('contact') :Args(0) {
         
         if ($f->validated()) {
             
-            $c->email(
-                header => [
-                    To => 'djcurtis@summersetsoftware.com',
-                    Subject => 'ahaha',
-                ],
-                body => 'Hope this works..'
+            $c->stash(
+                sender_name     => $f->value->{name},
+                sender_email    => $f->value->{email},
+                sender_message  => $f->value->{message},
+                email           => {
+                    to              => $c->config->{contact_page_recipiant},
+                    from            => $c->config->{'View::Email'}->{'default'}->{from},
+                    subject         => 'Jakarta.pm.org - Contact Us Message',
+                    template        => 'contact_us_message.tt2',
+                }
             );
-            
+            $c->forward( $c->view('Email::Template') );
+                        
             $c->flash(status_msg => "Alright!  Your message has been sent.  We'll get back to you just as quickly as we can!");
             
-            my $root_uri = $c->uri_for($c->controller->action_for('index'));
-            
+            my $root_uri = $c->uri_for($c->controller->action_for('index'));            
             $c->res->redirect($root_uri);
             $c->detach();
         }
         else {
-            $c->flash(error_msg => "Hey.. there was a problem with some of the data you provided.. probably a type!  Don't you hate those?  Anyway, check the data you've entered and try again!");            
+            $c->flash(error_msg => 
+                "Hey.. there was a problem with some of the data you provided.. probably a typeo!  " . 
+                "Don't you hate those??  I know I do!  Anyway, check the data you've entered and try again!"
+            );            
         }
-        
-        
     }
-    
-    
-    
-    $c->stash(form => $f);
-    
+        
+    $c->stash(form => $f);    
 }
 
 

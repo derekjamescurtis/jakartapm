@@ -1,0 +1,14 @@
+<html><head><title>hi there</title></head><body>
+
+<h1>Confirm your Email!!</h1>
+
+<p>Hey [% username|html %], thanks for registering on jakarta.pm.org!!</p>
+
+<p>
+	Before you can log in, you need to confirm your e-mail address.. you can do that <a href='[% confirmation_uri %]'>here</a>
+</p>
+
+
+
+</body></html>
+

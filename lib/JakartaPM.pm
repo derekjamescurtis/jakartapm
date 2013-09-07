@@ -27,7 +27,6 @@ use Catalyst qw/
     RequireSSL
     Authentication
     Authorization::Roles
-    Email
 /;
 
 extends 'Catalyst';
@@ -47,13 +46,7 @@ __PACKAGE__->config(
     name => 'JakartaPM',
     # Disable deprecated behavior needed by old applications
     disable_component_resolution_regex_fallback => 1,
-    enable_catalyst_header => 1, # Send X-Catalyst header
-    email => [
-        'SMTP',
-        'mailtrap.io:2525',
-        username => 'jakarta-pm-b24509e2d5538e78',
-        password => 'f7a0c7f6a0228026',
-    ],
+    enable_catalyst_header => 1, # Send X-Catalyst header    
 );
 
 

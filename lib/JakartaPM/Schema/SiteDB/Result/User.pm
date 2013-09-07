@@ -53,7 +53,7 @@ __PACKAGE__->table("user");
 =head2 password
 
   data_type: 'varchar'
-  is_nullable: 0
+  is_nullable: 1
   size: 500
 
 =head2 email
@@ -134,7 +134,7 @@ __PACKAGE__->add_columns(
   "username",
   { data_type => "varchar", is_nullable => 0, size => 50 },
   "password",
-  { data_type => "varchar", is_nullable => 0, size => 500 },
+  { data_type => "varchar", is_nullable => 1, size => 500 },
   "email",
   { data_type => "varchar", is_nullable => 0, size => 254 },
   "roles",
@@ -264,67 +264,114 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07036 @ 2013-09-05 03:13:04
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:vF1j2oD3UFId5rbK7/24Jw
+# Created by DBIx::Class::Schema::Loader v0.07036 @ 2013-09-07 06:23:06
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:qkvQdPNxZtONExoXr8ZNvA
 
 use Carp;
 use Data::Dumper;
+use DateTime;
+use Crypt::SaltedHash;
+use String::Random;
 
 
-=head1 CLASS METHODS
-=cut
 
-=head2 create_user(username, password, email)
-=cut
-sub create_user {
-    my %args = @_;
-    
-    # make sure we have all the parameters we're looking for
-    my ($un, $pwd, $email) = ($args{username}, $args{password}, $args{email});
-    unless ($un && $pwd && $email) {
-        carp "username, password and email are all required named parameters.\nArgs received:\n " . Dumper(%args);
-        return undef;    
-    }
-    
-    
-    # make sure that e-mail is valid, username meets requirements.  
-    # We'll assume that the password has been validated to meet 
-    # strenght requirements 
-    # TODO: we should really perform validation here again. 
-    
-    # username, e-mail address, password
-    
-    
-    
-}
+=head2 set_password(password)
 
-=head2 create_superuser()
+Creates a new salted+hashed password for this object using SHA-1 and using a salt length of 4 bytes.
+The new password hash is automatically updated to the database.
 
-Similar to the create_user method, but this user does not have to verify their e-mail
-address as it's assumed that this user is fully trusted.
+Returns: The string representation of the hashed password.  If this is an error, this method will 
+return undef and write to STDERR.
+
+Note: NO validation of password strenght is done here.  If this is being run from the command line
+then we're going to assume you're smart enough to set a big-boy password.. If this is being set 
+from the web application, then validation has already been performed by our form classes.
 
 =cut
-sub create_superuser {
-    my %args = @_;
-}
 
-=head2 set_password
-
-=cut
 sub set_password {
     my $self = shift;
     my %args = @_;
     
+    unless ($args{password}) {
+        carp "Argument 'password' is required.";
+        return undef;
+    }
     
+    my $csh = Crypt::SaltedHash->new(algorithm => 'SHA-1');
+    $csh->add($args{password});
     
+    my $pwd_hash = $csh->generate;
+    
+    $self->password($pwd_hash);
+    $self->update;
+    
+    return $pwd_hash;
     
 }
 
 =head2 generate_confirmation_key()
 
+Generates a new, 45 character confirmation key for this user and saves it to the database.
+This method will also reset the confirmation_time to null (in case it has been previously set).
+
+Confirmation keys are guarenteed to be unique by the database, so there wouldn't be MUCH harm
+in not verifying our key was unique (the application would just crash for the user that was trying
+to generate the new confirmation key).. and the odds of generating a conflicting key are hugely minimal
+(4.5459644e+80 possibilities) .. but just in the crazy one-off event that would ever occur .. we'll check.
+
+Returns: The 45 character string confirmation key.
+
 =cut
+
 sub generate_confirmation_key {
     my $self = shift;
+        
+    my $rnd = String::Random->new();
+    my $key; 
+    my $conflict;
+    do {    
+        $key        = $rnd->randregex('[a-zA-Z0-9]{45}');           
+        my $schema  = $self->result_source->schema;
+        $conflict   = $schema->resultset('User')->search({ confirmation_key => $key })->count;
+                
+    } while ($conflict);
+           
+    $self->confirmation_key($key);
+    $self->confirmation_date(undef);    
+    $self->update;
+    
+    return $key;    
+}
+
+=head2 generate_reset_key()
+
+Generates a new 45 character passsword reset key for the user and saves it to the database.
+The reset_date field is set to the current date/time (this should be used in the controllers to 
+enforce reset_key expiry). 
+
+Returns: The 45 character string reset key
+
+=cut
+
+sub generate_reset_key {
+    my $self = shift;
+    
+    my $rnd = String::Random->new;
+    my $key;
+    my $conflict;
+    do {
+        $key        = $rnd->randregex('[a-zA-Z0-9]{45}');
+        my $schema  = $self->result_source->schema;
+        $conflict   = $schema->resultset('User')->search({ reset_key => $key })->count;
+        
+    } while ($conflict);
+    
+    $self->reset_key($key);
+    $self->reset_date(DateTime->now);
+    $self->update;
+    
+    return $key;
 }
 
 

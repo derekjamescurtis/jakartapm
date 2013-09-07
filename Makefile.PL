@@ -25,18 +25,18 @@ requires 'Catalyst::View::TT' => '0.41';
 requires 'DBD::mysql' => '4.023';
 requires 'Catalyst::Model::DBIC::Schema' => '0.61';
 requires 'DateTime::Format::MySQL' => '0.04';
+requires 'MooseX::MarkAsMethods' => '0.15';
+requires 'MooseX::NonMoose' => '0.23';
 
 # web forms (don't code your own!)
 requires 'HTML::FormHandler' => '0.40027';
 requires 'Email::Valid' => '0.190'; # required for automatic validation of e-mail fields
 
-# email sending
-requires 'Catalyst::Plugin::Email' => '0.08';
+# email sending (templated + otherwise)
+requires 'Catalyst::View::Email' => '0.33';
+requires 'Catalyst::View::Email::Template' => '0.33';
 
 # session handling
-# There are many different plugins that will all give you session support. 
-# I tend to prefer this method as it's very easy to configure and gives relatively
-# good performance.
 requires 'Catalyst::Plugin::Session' => '0.37';
 requires 'Catalyst::Plugin::Session::Store::FastMmap' => '0.15';
 requires 'Catalyst::Plugin::Session::State::Cookie' => '0.17';
@@ -51,8 +51,9 @@ requires 'Catalyst::Plugin::RequireSSL' => '0.07';
 # authentication-related
 requires 'Catalyst::Plugin::Authentication' => '0.10023';
 requires 'Catalyst::Plugin::Authorization::Roles' => '0.09';
-requires 'Catalyst::Plugin::Authentication::Store::DBIx::Class' => '0.1505';
+requires 'Catalyst::Authentication::Store::DBIx::Class' => '0.1505';
 requires 'Crypt::SaltedHash' => '0.09';
+requires 'String::Random' => '0.22';
 
 test_requires 'Test::More' => '0.88';
 catalyst;
