@@ -30,7 +30,9 @@ requires 'MooseX::NonMoose' => '0.23';
 
 # web forms (don't code your own!)
 requires 'HTML::FormHandler' => '0.40027';
+requires 'HTML::FormHandler::Model::DBIC' => '';
 requires 'Email::Valid' => '0.190'; # required for automatic validation of e-mail fields
+requires 'Locale::SubCountry' => '1.62'; # automatic population of country/province names
 
 # email sending (templated + otherwise)
 requires 'Catalyst::View::Email' => '0.33';

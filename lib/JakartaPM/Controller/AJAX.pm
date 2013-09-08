@@ -1,7 +1,6 @@
 package JakartaPM::Controller::AJAX;
 use Moose;
 use namespace::autoclean;
-use JakartaPM::Forms::Contact;
 
 BEGIN { extends 'Catalyst::Controller'; }
 
@@ -23,36 +22,20 @@ else.
 
 =cut
 
-sub contact_form :Path('contact') :Args(0) {
-    my ($self, $c) = @_;
-    
-    my $f = JakartaPM::Forms::Contact->new();
-    
-    if ($c->request->method eq 'POST') {
-        
-        my $result = $f->run( $c->request->body_parameters );
-        
-        if ($result->validated) {            
-            $c->response->body('Great! Everything worked like a fucking charm! =D');
-            $c->response->status(200);
-        }
-        else {
-            # todo: get the ACTUAL error messages here
-            # todo: return a better HTTP response
-            $c->response->body('Ooops.. something went wrong');
-            $c->response->status(500);
-        }
-        
-    }
-    else {
-        # get requests always want a new form        
-        
-        # TODO: if the user is logged in, then we want to manually specify some of the field (like their name and email address)
-        # and disable those on the form
-            
-        $c->stash->{form} = $f;
-    }    
+
+=head2 get_provinces_json
+
+Gets a json-encoded list of provinces for a given two digit country code.
+
+=cut
+
+sub get_provinces_json {
+    my ( $self, $c ) = @_;
 }
+
+
+
+
 
 
 =head2 end

@@ -21,6 +21,7 @@
     <header class='container'>
     	<nav>
 		    [% IF c.user_exists %]
+		    <a href='[% c.uri_for(c.controller('Members').action_for('edit_profile')) %]'>Edit Profile</a> | 
 		    <a href='[% c.uri_for(c.controller('Members').action_for('logout')) %]'>Logout</a>
 		    [% ELSE %]
 		    <a href='[% c.uri_for(c.controller('Members').action_for('login')) %]'>Login</a> | 
@@ -59,7 +60,7 @@
 
     <footer>
       <div class='container'>
-        &copy; Copyright Derek J. Curtis 2013 &copy;        
+        &copy; Copyright Derek J. Curtis 2013         
       </div>
     </footer>
 

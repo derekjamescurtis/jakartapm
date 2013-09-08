@@ -278,7 +278,8 @@ use String::Random;
 =head2 set_password(password)
 
 Creates a new salted+hashed password for this object using SHA-1 and using a salt length of 4 bytes.
-The new password hash is automatically updated to the database.
+The new password hash is automatically updated to the database.  If there is a reset_key generated
+for this account, it will automatically be cleared.
 
 Returns: The string representation of the hashed password.  If this is an error, this method will 
 return undef and write to STDERR.
@@ -303,8 +304,11 @@ sub set_password {
     
     my $pwd_hash = $csh->generate;
     
-    $self->password($pwd_hash);
-    $self->update;
+    $self->update({
+        password    => $pwd_hash,
+        reset_key   => undef,
+        reset_date  => undef, 
+    });    
     
     return $pwd_hash;
     
