@@ -56,6 +56,41 @@ __PACKAGE__->table("comment");
   is_foreign_key: 1
   is_nullable: 0
 
+=head2 content
+
+  data_type: 'text'
+  is_nullable: 0
+
+=head2 pub_date
+
+  data_type: 'datetime'
+  datetime_undef_if_invalid: 1
+  is_nullable: 0
+
+=head2 modified_date
+
+  data_type: 'datetime'
+  datetime_undef_if_invalid: 1
+  is_nullable: 1
+
+=head2 requires_moderation
+
+  data_type: 'tinyint'
+  default_value: 0
+  is_nullable: 0
+
+=head2 moderator_deleted
+
+  data_type: 'tinyint'
+  default_value: 0
+  is_nullable: 0
+
+=head2 response_to_comment
+
+  data_type: 'integer'
+  is_foreign_key: 1
+  is_nullable: 1
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -65,6 +100,26 @@ __PACKAGE__->add_columns(
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "author_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
+  "content",
+  { data_type => "text", is_nullable => 0 },
+  "pub_date",
+  {
+    data_type => "datetime",
+    datetime_undef_if_invalid => 1,
+    is_nullable => 0,
+  },
+  "modified_date",
+  {
+    data_type => "datetime",
+    datetime_undef_if_invalid => 1,
+    is_nullable => 1,
+  },
+  "requires_moderation",
+  { data_type => "tinyint", default_value => 0, is_nullable => 0 },
+  "moderator_deleted",
+  { data_type => "tinyint", default_value => 0, is_nullable => 0 },
+  "response_to_comment",
+  { data_type => "integer", is_foreign_key => 1, is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -111,9 +166,44 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 1, on_delete => "NO ACTION", on_update => "NO ACTION" },
 );
 
+=head2 comments
 
-# Created by DBIx::Class::Schema::Loader v0.07036 @ 2013-09-05 03:13:04
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:beHJimbuDxmBZ/x93vDTgw
+Type: has_many
+
+Related object: L<JakartaPM::Schema::SiteDB::Result::Comment>
+
+=cut
+
+__PACKAGE__->has_many(
+  "comments",
+  "JakartaPM::Schema::SiteDB::Result::Comment",
+  { "foreign.response_to_comment" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+=head2 response_to_comment
+
+Type: belongs_to
+
+Related object: L<JakartaPM::Schema::SiteDB::Result::Comment>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "response_to_comment",
+  "JakartaPM::Schema::SiteDB::Result::Comment",
+  { id => "response_to_comment" },
+  {
+    is_deferrable => 1,
+    join_type     => "LEFT",
+    on_delete     => "NO ACTION",
+    on_update     => "NO ACTION",
+  },
+);
+
+
+# Created by DBIx::Class::Schema::Loader v0.07036 @ 2013-09-09 09:49:32
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:li/+Wr247YqGmVuzaqTYyw
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

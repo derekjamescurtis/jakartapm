@@ -1,0 +1,8 @@
+[% title = article.title %]
+
+<h1>[% article.title|html %]</h1>
+<h2>[% article.pub_date %] by [% article.author.username %]</h2>
+
+<div>
+    [% article.content|html %]
+</div>

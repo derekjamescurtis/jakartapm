@@ -1,29 +1,4 @@
+[% title = 'Login' %]
+
 <h1>Login/Register</h1>
 [% form.render %]
-
-[% post_js_includes = BLOCK %]
-<script>
-
-	$('#new_or_existing').change(function(){
-		
-		console.log('yup');
-		
-		var controls = ['password_confirm', 'email',]; 
-		
-		
-		for (var i = 0; i < controls.length; i++) {
-			if (this.getAttribute('checked'))
-				$('#'+controls[i]).prop('disabled', 'true');				
-			else
-				$('#'+controls[i]).removeProp('disabled');
-			
-		}
-	});
-
-	// when the document is loaded, we manually trigger this event to set things off
-	$(document).ready(function(){
-		$('#new_or_existing').change();
-	});
-	
-</script>
-[% END %]

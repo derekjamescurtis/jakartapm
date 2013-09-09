@@ -27,6 +27,7 @@ use Catalyst qw/
     RequireSSL
     Authentication
     Authorization::Roles
+    Sitemap
 /;
 
 extends 'Catalyst';

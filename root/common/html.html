@@ -4,7 +4,7 @@
     <meta charset='UTF-8'>
     <meta name='author' content='Derek J. Curtis (djcurtis@summersetsoftware.com)'>
     <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-    <title>Jakarta.PM</title>
+    <title>Jakarta.PM[% IF title %] | [% title %][% END %]</title>
 
     [% IF c.debug %]
     <link rel='stylesheet' media='screen' href='/static/bootstrap-3.0.0/css/bootstrap.css' />
@@ -33,7 +33,7 @@
 			<ul>
 				<li><a href='[% c.uri_for(c.controller("Root").action_for("index")) %]'>Home</a></li>
 				<li><a href='[% c.uri_for(c.controller("Root").action_for("about")) %]'>About</a></li>
-				<li><a href='[% c.uri_for(c.controller("Root").action_for("news")) %]'>News</a></li>
+				<li><a href='[% c.uri_for(c.controller("News").action_for("article_list")) %]'>News</a></li>
 				<li><a href='[% c.uri_for(c.controller("Root").action_for("events")) %]'>Events</a></li>
 				<li><a href='[% c.uri_for(c.controller("Root").action_for("contact")) %]'>Contact</a></li>
 			</ul>

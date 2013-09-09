@@ -1,0 +1,22 @@
+[% title = 'News' %]
+
+<h1>News</h1>
+[% IF c.check_any_user_role('superuser','news_publisher') %]
+<a href='[% c.uri_for( c.controller('News').action_for('article_create') ) %]'>Create Article</a>
+[% END %]
+
+<ul>
+    [% FOR a IN articles %]
+        <li>
+            <h2>[% a.title|html %]</h2>
+            <p>[% a.content.substr(0, 200)|html %]</p>
+            <p><a href='[% c.uri_for( c.controller('News').action_for('article_detail'), [ a.slug ] )%]'>Read More..</a></p>
+            <p>[% a.pub_date %] by <a href='[% c.uri_for( c.controller('Members').action_for('public_profile'), [ a.author.username, ] ) %]'>[% a.author.username|html %]</a></p>
+        </li>        
+    [% END %]
+</ul>
+
+
+[% BLOCK render_summary %]
+
+[% END %]

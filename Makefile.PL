@@ -30,7 +30,7 @@ requires 'MooseX::NonMoose' => '0.23';
 
 # web forms (don't code your own!)
 requires 'HTML::FormHandler' => '0.40027';
-requires 'HTML::FormHandler::Model::DBIC' => '';
+requires 'HTML::FormHandler::Model::DBIC' => '0.26';
 requires 'Email::Valid' => '0.190'; # required for automatic validation of e-mail fields
 requires 'Locale::SubCountry' => '1.62'; # automatic population of country/province names
 
@@ -45,6 +45,9 @@ requires 'Catalyst::Plugin::Session::State::Cookie' => '0.17';
 
 # transparent unicode support
 requires 'Catalyst::Plugin::Unicode::Encoding' => '2.1';
+
+# automatic sitemap generation
+requires 'Catalyst::Plugin::Sitemap' => '1.0';
 
 # For the most part, if you have full access to the web server your application is running on, you can
 # set this up at the web server level.  In instances where you cannot, I show this module as a demonstration of how SSL can be enforced  

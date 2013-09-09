@@ -1,2 +1,4 @@
+[% title = 'Resend Confirmation E-Mail' %]
+
 <h1>Resend Confirmation E-Mail</h1>
 [% form.render %]

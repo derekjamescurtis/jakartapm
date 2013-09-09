@@ -126,6 +126,12 @@ __PACKAGE__->table("user");
   is_nullable: 1
   size: 3
 
+=head2 last_active
+
+  data_type: 'datetime'
+  datetime_undef_if_invalid: 1
+  is_nullable: 1
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -167,6 +173,12 @@ __PACKAGE__->add_columns(
   { data_type => "varchar", is_nullable => 1, size => 50 },
   "country",
   { data_type => "varchar", is_nullable => 1, size => 3 },
+  "last_active",
+  {
+    data_type => "datetime",
+    datetime_undef_if_invalid => 1,
+    is_nullable => 1,
+  },
 );
 
 =head1 PRIMARY KEY
@@ -264,8 +276,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07036 @ 2013-09-07 06:23:06
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:qkvQdPNxZtONExoXr8ZNvA
+# Created by DBIx::Class::Schema::Loader v0.07036 @ 2013-09-09 09:49:32
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:TM81D+F7KLETt5GkLMC2Aw
 
 use Carp;
 use Data::Dumper;

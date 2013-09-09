@@ -85,6 +85,12 @@ __PACKAGE__->table("article");
   default_value: 0
   is_nullable: 0
 
+=head2 slug
+
+  data_type: 'varchar'
+  is_nullable: 0
+  size: 100
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -112,6 +118,8 @@ __PACKAGE__->add_columns(
   },
   "is_locked",
   { data_type => "tinyint", default_value => 0, is_nullable => 0 },
+  "slug",
+  { data_type => "varchar", is_nullable => 0, size => 100 },
 );
 
 =head1 PRIMARY KEY
@@ -125,6 +133,20 @@ __PACKAGE__->add_columns(
 =cut
 
 __PACKAGE__->set_primary_key("id");
+
+=head1 UNIQUE CONSTRAINTS
+
+=head2 C<slug_UNIQUE>
+
+=over 4
+
+=item * L</slug>
+
+=back
+
+=cut
+
+__PACKAGE__->add_unique_constraint("slug_UNIQUE", ["slug"]);
 
 =head1 RELATIONS
 
@@ -159,8 +181,9 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07036 @ 2013-09-05 03:13:04
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:PRJ05JeiP0u46EeVKt+s6g
+# Created by DBIx::Class::Schema::Loader v0.07036 @ 2013-09-09 09:49:32
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:6bI8aWkKXLzxugP0eMIEvg
+
 
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

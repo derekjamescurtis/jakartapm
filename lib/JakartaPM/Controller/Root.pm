@@ -39,14 +39,6 @@ sub about :Path('about') :Args(0) {
     my ( $self, $c ) = @_;
 }
 
-=head2 news
-
-=cut
-sub news :Path('news') :Args(0) {
-    my ( $self, $c ) = @_;
-       
-    # todo: get the news articles in descending order
-}
 
 =head2 events
 

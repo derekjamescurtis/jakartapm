@@ -48,7 +48,7 @@ sub login_required :Chained('/') :PathPart('') :CaptureArgs(0) {
     unless ($c->user_exists) {
         
         my $next_uri    = $c->uri_for($c->action);                  
-        my $login_action= $c->controller->action_for('login');        
+        my $login_action= $c->controller('Members')->action_for('login');        
         my $login_uri   = $c->uri_for($login_action, { next => $next_uri });
         
         $c->res->redirect( $login_uri );
@@ -161,7 +161,7 @@ sub login :Chained('anon_required') :PathPart('login') :Args(0){
                 }
                 elsif (!$c->user->get('confirmation_date')) {     
                     
-                    my $resend_conf_uri = $c->uri_for( $c->controller->action_for('confirm_email_resend') );                                         
+                    my $resend_conf_uri = $c->uri_for( $c->controller('Members')->action_for('confirm_email_resend') );                                         
                     $c->flash->{error_msg} = 
                         "Aw shoot dawg.. You didn't confirm your e-mail address yet!  You know, we gotta watch " .
                         "out for dem bots.. Hey, but if for some reason you can't find your confirmation e-mail " . 
@@ -180,7 +180,7 @@ sub login :Chained('anon_required') :PathPart('login') :Args(0){
             } # end if user_exists
             else {                    
                 # bad username/password..
-                my $pwd_reset_uri = $c->uri_for( $c->controller->action_for('password_reset_request') );                    
+                my $pwd_reset_uri = $c->uri_for( $c->controller('Members')->action_for('password_reset_request') );                    
                 $c->flash( error_msg => 
                     "Sorry, I don't recognize that username or password combination.  " .
                     "If you're having trouble, you can reset your password from " . 
@@ -229,7 +229,7 @@ sub register :Chained('anon_required') :PathPart('register') :Args(0) {
             my $conf_key = $u->generate_confirmation_key;
             
             # 2.) send the validation e-mail
-            my $conf_url = $c->uri_for( $c->controller->action_for('confirm_email'), [ $conf_key, ] );
+            my $conf_url = $c->uri_for( $c->controller('Members')->action_for('confirm_email'), [ $conf_key, ] );
             $c->stash(
                 username => $f->value->{username},
                 confirmation_uri => $conf_url,
@@ -286,7 +286,7 @@ sub confirm_email_resend :Chained('anon_required') :PathPart('email/confirm/rese
                 
                 # invalidate previous confirmation key + send a new e-mail
                 my $conf_key = $u->generate_confirmation_key;
-                my $conf_url = $c->uri_for( $c->controller->action_for('confirm_email'), [ $conf_key, ] );                
+                my $conf_url = $c->uri_for( $c->controller('Members')->action_for('confirm_email'), [ $conf_key, ] );                
                 $c->stash(
                     username         => $u->username,
                     confirmation_uri => $conf_url,
@@ -342,7 +342,7 @@ sub confirm_email :Chained('anon_required') :PathPart('email/confirm') :Args(1) 
         $c->flash( status_msg => 'Ok!  Your account is confirmed!  All you need to do is log in!.' );
     }
     
-    my $login_uri = $c->uri_for( $c->controller->action_for('login') );
+    my $login_uri = $c->uri_for( $c->controller('Members')->action_for('login') );
     $c->res->redirect($login_uri);
     $c->detach();
     
@@ -380,14 +380,14 @@ sub password_reset_request :Chained('anon_required') :PathPart('password/reset')
                 }
                 elsif (!$u->confirmation_date) {
                                         
-                    my $resend_conf_uri = $c->uri_for( $c->controller->action_for('confirm_email_resend') );
+                    my $resend_conf_uri = $c->uri_for( $c->controller('Members')->action_for('confirm_email_resend') );
                     $c->flash( error_msg => "Hey actually you haven't confirmed your account yet. Why don't you go " . 
                         "<a href='${resend_conf_uri}'>here</a> and have your confirmation e-mail resent.");
                 }
                 else {
                     # ok.. their account is in good shape -- send them the reset e-mail                    
                     my $reset_key = $u->generate_reset_key();
-                    my $reset_uri = $c->uri_for( $c->controller->action_for('password_reset_confirm'), [ $reset_key ] );
+                    my $reset_uri = $c->uri_for( $c->controller('Members')->action_for('password_reset_confirm'), [ $reset_key ] );
                     
                     $c->stash( 
                         username    => $u->username,
@@ -451,7 +451,7 @@ sub password_reset_confirm :Chained('anon_required') :PathPart('password/reset')
                 
                 $c->flash( status_msg => 'Ok! Your password has been changed.  You can now log in.' );
                 
-                my $login_uri = $c->uri_for( $c->controller->action_for('login') );
+                my $login_uri = $c->uri_for( $c->controller('Members')->action_for('login') );
                 $c->res->redirect($login_uri);
                 $c->detach();
                 
