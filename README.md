@@ -38,10 +38,10 @@ On Windows, I run [Strawberry Perl](). (I've used Active Perl as well.. the choi
 two is fairly arbitrary.  They both work great.).  
 On Mac or Linux, chances are you've got Perl 5.10+ so you're already in good shape.
 
-1.) On Windows, you need to install nmake. You can get this application by installing the Windows SDK (google it) .. Then you're going to need to find the path to nmake.exe (It'll be something like C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin) and add it to your user or system PATH variable.
-2.) Clone this repo
-3.) Install MySQL and deploy the workbench model included at the project root
-4.) Navigate to the project root and run the following commands (install all the optional components when prompted):
+1. On Windows, you need to install nmake. You can get this application by installing the Windows SDK (google it) .. Then you're going to need to find the path to nmake.exe (It'll be something like C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin) and add it to your user or system PATH variable.
+2. Clone this repo
+3. Install MySQL and deploy the workbench model included at the project root
+4. Navigate to the project root and run the following commands (install all the optional components when prompted):
 
 C:\mypath> perl Makefile.PL
 C:\mypath> nmake
@@ -50,10 +50,10 @@ C:\mypath> nmake install
 
 ### Linux and Mac OSx
 
-1.) Make sure you've got GNU make installed and it's added to the PATH of your favorite shell.
-2.) Clone this repo with git to your local machine.  
-3.) Install MySQL and deploy the workbench model included at the project root.
-4.) Navigate to the project root and run the following commands (install all the optional components when prompted):
+1. Make sure you've got GNU make installed and it's added to the PATH of your favorite shell.
+2. Clone this repo with git to your local machine.  
+3. Install MySQL and deploy the workbench model included at the project root.
+4. Navigate to the project root and run the following commands (install all the optional components when prompted):
 
 $ perl ./Makefile.PL
 $ sudo make
