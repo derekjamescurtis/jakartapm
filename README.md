@@ -41,7 +41,7 @@ On Mac or Linux, chances are you've got Perl 5.10+ so you're already in good sha
 3. Install MySQL and deploy the workbench model included at the project root
 4. Navigate to the project root and run the following commands (install all the optional components when prompted):
 
-```PowerShell
+```
 C:\mypath> perl Makefile.PL
 C:\mypath> nmake
 C:\mypath> nmake install
@@ -54,7 +54,7 @@ C:\mypath> nmake install
 3. Install MySQL and deploy the workbench model included at the project root.
 4. Navigate to the project root and run the following commands (install all the optional components when prompted):
 
-```Shell
+```
 $ perl ./Makefile.PL
 $ sudo make
 $ sudo make install
