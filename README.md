@@ -10,8 +10,7 @@ Second, it is to serve as an example of how to properly build, test, document an
 This site will have a small number of features (users, calendar, news), I'll try to demonstrate as many commonly-used technologies as possible
 
 
-# Technologies Covered
-----------
+## Technologies Covered
 
 * Form Handling with [HTML::FormHandler](http://search.cpan.org/dist/HTML-FormHandler/lib/HTML/FormHandler.pm)
 * Automatic Sitemaps [Catalyst::Plugin::Sitemap](http://search.cpan.org/~yanick/Catalyst-Plugin-Sitemap-1.0.0/lib/Catalyst/Plugin/Sitemap.pm)
@@ -30,7 +29,6 @@ This site will have a small number of features (users, calendar, news), I'll try
 
 
 ## Installing the Prerequisites  
---------
 
 ### Windows
 
@@ -43,10 +41,11 @@ On Mac or Linux, chances are you've got Perl 5.10+ so you're already in good sha
 3. Install MySQL and deploy the workbench model included at the project root
 4. Navigate to the project root and run the following commands (install all the optional components when prompted):
 
+```PowerShell
 C:\mypath> perl Makefile.PL
 C:\mypath> nmake
 C:\mypath> nmake install
-
+```
 
 ### Linux and Mac OSx
 
@@ -55,9 +54,11 @@ C:\mypath> nmake install
 3. Install MySQL and deploy the workbench model included at the project root.
 4. Navigate to the project root and run the following commands (install all the optional components when prompted):
 
+```Shell
 $ perl ./Makefile.PL
 $ sudo make
 $ sudo make install
+```
 
 
 Rebuilding The Database Schema
