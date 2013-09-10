@@ -2,6 +2,7 @@ package JakartaPM::Controller::News;
 use Moose;
 use namespace::autoclean;
 use JakartaPM::Forms::NewsArticle;
+use JakartaPM::Forms::NewsComment;
 
 BEGIN { extends 'Catalyst::Controller'; }
 
@@ -14,10 +15,6 @@ JakartaPM::Controller::News - Catalyst Controller
 Catalyst Controller.
 
 =head1 METHODS
-
-=cut
-
-
 
 =head2 article_publisher_required 
 
@@ -41,6 +38,7 @@ sub news_publisher_required :PathPart('news') :Chained('/members/login_required'
 
 =head2 article_create
 
+
 =cut
 
 sub article_create :PathPart('create') :Chained('news_publisher_required') :Args(0) {
@@ -50,8 +48,7 @@ sub article_create :PathPart('create') :Chained('news_publisher_required') :Args
         item => $c->model('SiteDB::Article')->new({ 
             author      => $c->user->get_object,            
         }));
-    
-    
+        
     if ($c->req->method eq 'POST') {
         
         $f->process( params => $c->req->body_params );
@@ -72,36 +69,330 @@ sub article_create :PathPart('create') :Chained('news_publisher_required') :Args
     
     $c->stash( form => $f );
 }
-sub article_edit {
+
+=head2 specific_article
+
+Any actions that deal with modifications to a specific, already created article
+will be chained off this method.  
+
+If the currently-logged in user did not autor the article, or the user is not
+assigned to the role of 'superuser' they will be redirected away and warned
+they cannot perform the action that they're attempting.
+
+=cut
+
+sub specific_article :PathPart('') :Chained('news_publisher_required') :CaptureArgs(1) {
+    my ( $self, $c, $slug ) = @_;
+        
+    # lookup the article
+    my $a = $c->model('SiteDB::Article')->find({ slug => $slug });
+    unless ($a) {
+        
+        $c->flash( error_msg => 'Unable to lookup the article you specified' );
+        
+        my $list_uri = $c->uri_for( $c->controller('News')->action_for('article_list') );
+        $c->res->redirect($list_uri);
+        $c->detach();
+    }    
     
-}
-sub article_delete {
-    
+    # make sure the logged in user either owns that article, or is a superuser
+    if ( $c->check_any_user_role( qw/superuser/ ) ) {
+        $c->stash( article => $a );
+    }
+    elsif ( $c->check_any_user_role( qw/news_publisher/) && ( $c->user->id == $a->author_id )) { 
+        $c->stash( article => $a );
+    }
+    else {
+        # oh snap!
+        $c->flash( error_msg => 'Only superusers or article authors can perform that action.' );
+        
+        my $list_uri = $c->uri_for( $c->controller('News')->action_for('article_list') );
+        $c->res->redirect($list_uri);
+        $c->detach();
+    }
 }
 
+=head2 article_edit
 
-# article/create
-# article/{slug}   -- view
-# article/{slug}/edit
-# article/{slug}/delete
+Displays a form very similar to the article create action, except this modifies an already-created
+article.  
+
+On postback, validates and then saves the Article data back to the database.  Additionally, the 
+article will have a modified_date set in the database (which is null when an article is created).
+After successful validation, the user will be redirected back to the article detail page.
+
+=cut
+
+sub article_edit :PathPart('edit') :Chained('specific_article') :Args(0) {
+    my ( $self, $c ) = @_;
+    
+    my $f = JakartaPM::Forms::NewsArticle->new( item => $c->stash->{article} );
+    
+    # change the article's update time to the current time
+    $c->stash->{article}->modified_date(DateTime->now);
+    
+    # on postback, try to process the form .. if everything goes well, then show the user the form
+    if ( $c->req->method eq 'POST' ) {
+        
+        $f->process( params => $c->req->body_params );
+        
+        if ($f->validated) {
+            
+            $c->flash( status_msg => 'Article updated!' );
+            
+            my $article_uri = $c->uri_for( $c->controller('News')->action_for('article_detail'), [ $c->stash->{article}->slug, ] );
+            $c->res->redirect($article_uri);
+            $c->detach();
+        }        
+    }
+    
+    $c->stash( form => $f );    
+}
+
+=head2 article_delete
+
+Displays a confirmation request that allows the user to confirm that, yes they really really truely
+do want to delete this article (or they can click a cancel button to back off).
+
+On postback, actually deletes this particular article and redirect the user back to the article list.
+
+=cut
+
+sub article_delete :PathPart('delete') :Chained('specific_article') :Args(0) {
+    my ( $self, $c ) = @_;
+    
+    if ($c->req->method eq 'POST') {
+        
+        $c->stash->{article}->delete;
+        
+        $c->flash( status_msg => 'Article Deleted' );
+        
+        my $list_uri = $c->uri_for( $c->controller->('News')->action_for('article_list') );
+        $c->res->redirect($list_uri);
+        $c->detach();
+    }    
+}
+
+=head2 article_list
+
+Displays a list of articles to the user.
+
+TODO: actually, I don't want to populate the list of articles here.. this would be a better place to demonstrate
+how to use AJAX with catalyst (I don't want to do that with the calendar because people may want to bookmark a particular
+month in the calendar or copy+paste the url for a specific date somewhere..).
+
+=cut
 
 sub article_list :Path('') :Args(0) {
     my ( $self, $c ) = @_;
+    
+    # todo: support pagination and ajax loading of articles.. 
     
     my @articles = $c->model('SiteDB::Article')->all;
     
     $c->stash(articles => \@articles,); 
 }
+
+=head2 article_detail
+
+Displays the full text of an article.
+
+If the current user is either the Article's author, or assigned to the role of superuser,
+edit and delete controls will be displays as well.
+
+=cut
+
 sub article_detail :Path('article') :Args(1) {
     my ( $self, $c, $slug ) = @_;
     
     # make sure we can look up this article by it's slug
     my $a = $c->model('SiteDB::Article')->find({ slug => $slug });
     
-    $c->stash( article => $a );
+    
+    # if the user is logged in, they'll have the ability to post comments
+    if ( $c->user_exists ) {
+        
+        my $comment = $c->model('SiteDB::Comment')->new({
+            article     => $a,
+            author      => $c->user->get_object,
+            pub_date    => DateTime->now,     
+        });
+    
+        my $f = JakartaPM::Forms::NewsComment->new( item => $comment );
+        
+        if ( $c->req->method eq 'POST' ) {
+            $f->process( params => $c->req->body_params );
+            if ( $f->validated ) {
+                
+                $c->flash( status_msg => 'Comment posted' );
+                
+                # force a reload of this action using a GET request now
+                $c->res->redirect( $c->uri_for($c->action, [ $a->slug ]) );
+                $c->detach();
+            }
+            else {
+                $c->flash( error_msg => 'There was a problem posting your comment' );
+            }
+        }
+        
+        $c->stash( comment_form => $f );        
+    }
+
+    # rather than nastifying our template to put this crap in, we'll do it here
+    my $show_edit_controls = 0;
+    if ( $c->check_any_user_role( qw/superuser/ ) ) {
+        $show_edit_controls = 1;
+    }
+    elsif ( $c->check_any_user_role( qw/news_publisher/) && ( $c->user->id == $a->author_id )) { 
+        $show_edit_controls = 1;
+    }
+    
+    # TODO: implement pagination here
+    my @all_comments = $a->comments->all;
+    
+    
+    $c->stash( 
+        article             => $a, 
+        show_edit_controls  => $show_edit_controls,  
+        comments            => \@all_comments,
+    );
     
 }
 
+=head2 comment_base
+
+This is the base action for all comment-related actions.  As part of the URL, it expects the slug 
+of the Article that the comment is being left for.  The Article will be looked up and stored in
+the stash for further actions.
+
+=cut
+
+sub comment_base :PathPart('comment') :Chained('/members/login_required') :CaptureArgs(1) {
+    my ( $self, $c, $slug ) = @_;
+    
+    my $a = $c->model('SiteDB::Article')->find({ slug => $slug });
+    
+    unless ($a) {
+        
+        $c->flash( error_msg => 'Unable to find the article you requested' );
+        
+        my $list_uri = $c->uri_for( $c->controller('News')->action_for('article_list') );        
+        $c->res->redirect($list_uri);
+        $c->detach();
+    }
+    
+    $c->stash( article => $a );
+}
+
+=head2 comment_create
+
+Displays a new form to the user that allows them to input the text for their comment.
+
+TODO: Although our model supports threaded comments, we're not going to support that right
+off the bat.  I don't really have the time to put into that right now, so the simpler 
+things are, the better.
+
+=cut
+
+sub comment_create :PathPart('create') :Chained('comment_base') :Args(0) {
+    my ( $self, $c ) = @_;
+    
+    my $comment = $c->model('SiteDB::Comment')->new({ 
+        article     => $c->stash->{article},
+        author      => $c->user->get_object,
+        pub_date    => DateTime->now,
+    });
+    
+    my $f = JakartaPM::Forms::NewsComment->new( item => $comment );
+    
+    if ( $c->req->method eq 'POST' ){
+        
+        $f->process( params => $c->req->body_params );
+        
+        if ($f->validated) {
+            
+            $c->flash( status_msg => 'Comment published!' );
+            
+            my $article_uri = $c->uri_for( $c->controller('News')->action_for('article_detail'), [ $c->stash->{article}->slug ] );
+            $c->res->redirect($article_uri);
+            $c->detach();
+        }
+    }
+ 
+    $c->stash( form => $f );
+}
+
+=head2 specific_comment
+
+Base for any items in the processing chain that require action on a specifc comment that has
+already been created.
+
+=cut
+
+sub specific_comment :PathPart('') :Chained('comment_base') :CaptureArgs(1) {
+    my ( $self, $c, $id ) = @_;
+    
+    my $comment = $c->model('SiteDB::Comment')->find($id);
+    
+    # used to redirect the user back to the article if there is a problem
+    my $article_uri = $c->uri_for( $c->controller('News')->action_for('article_detail'), [ $c->stash->{article}->slug ] );
+    
+    unless($comment){
+        
+        $c->flash( error_msg => 'Error looking up comment.' );
+                
+        $c->res->redirect($article_uri);
+        $c->detach();
+    }
+    
+    if ($c->user->id != $comment->author_id || !$c->check_any_user_role(qw/superuser moderator/) ) {
+        
+        $c->flash( 'You do not have sufficient privileges to perform this action.' );
+        
+        $c->res->redirect($article_uri);
+        $c->detach();
+    }
+    
+    $c->stash( comment => $comment );
+}
+
+
+sub comment_edit :PathPart('edit') :Chained('specific_comment') :Args(0) {
+    my ( $self, $c ) = @_;
+    
+    # show/hide superuser controls
+    my $f;
+    if ( $c->check_any_user_role('superuser') ) {
+        $f = JakartaPM::Forms::NewsComment->new( item => $c->stash->{comment}, active => [ 'moderator_deleted', ]);
+    }
+    else {
+        $f = JakartaPM::Forms::NewsComment->new( item => $c->stash->{comment} );
+    }
+    
+    $c->stash( form => $f );
+    
+}
+
+=head2 
+
+=cut
+
+sub comment_delete :PathPart('delete') :Chained('specific_comment') :Args(0) {
+    my ( $self, $c ) = @_;
+}
+
+sub moderator_required :PathPart('moderator') :Chained('/members/login_required') :CaptureArgs(0) {
+    my ( $self, $c ) = @_;
+    
+    # make sure we've got the moderator privilege
+    
+}
+
+sub flagged_comments_list :PathPart('flagged-comments') :Chained('moderator_required') :Args(0) {
+    my ( $self, $c ) = @_;
+    
+    
+}
 
 
 =encoding utf8

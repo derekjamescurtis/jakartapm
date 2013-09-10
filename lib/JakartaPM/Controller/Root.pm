@@ -39,7 +39,6 @@ sub about :Path('about') :Args(0) {
     my ( $self, $c ) = @_;
 }
 
-
 =head2 events
 
 By default, we'll let people access our events calendar without specifying a year/month in the URL. 
@@ -130,7 +129,6 @@ sub contact :Path('contact') :Args(0) {
         
     $c->stash(form => $f);    
 }
-
 
 =head2 default
 

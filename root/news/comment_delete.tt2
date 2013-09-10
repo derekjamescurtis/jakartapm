@@ -1,0 +1,6 @@
+<h1>Delete Comment</h1>
+<p>Are you sure?</p>
+<form method='post'>
+    <a href='[% c.uri_for( c.controller("News").action_for("article_detail"), [ article.slug ] ) %]'>No, nevermind</a>
+    <input type='submit' value='Yeah, go ahead' />
+</form>

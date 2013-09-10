@@ -3,6 +3,52 @@
 <h1>[% article.title|html %]</h1>
 <h2>[% article.pub_date %] by [% article.author.username %]</h2>
 
+[% IF show_edit_controls %]
+<a href='[% c.uri_for( c.controller("News").action_for("article_edit"), [ article.slug ] ) %]'>Edit</a> | 
+<a href='[% c.uri_for( c.controller("News").action_for("article_delete"), [ article.slug ] ) %]'>Delete</a>
+[% END %]
+
 <div>
     [% article.content|html %]
 </div>
+
+
+<!-- Display the new comment form at the top -->
+[% IF c.user_exists %]
+<h2>Post Comment</h2>
+[% comment_form.render %]
+[% END %]
+
+
+<!-- Display a list of all other comments -->
+<ul>
+	[% IF comments.size > 0 %]
+	   [% FOREACH comment IN comments %]
+	       <li>
+	           <h3>[% comment.author.username %]</h3>
+	           <h4>[% comment.pub_date %]</h4>
+	           <p>	           
+	               [% IF comment.moderator_deleted;
+	                   "This comment has been deleted by a moderator";
+	                  ELSE;
+	                   comment.content;
+	                  END;
+	                -%]
+	           </p>
+	           [% IF c.user_exists %]
+		           [% IF show_edit_controls or ( c.user.id == comment.author.id ) %]
+		               <a href='[% c.uri_for( c.controller("News").action_for("comment_edit"), [ article.slug, comment.id ] ) %]'>Edit</a> | 
+		               <a href='[% c.uri_for( c.controller("News").action_for("comment_delete"), [ article.slug, comment.id ]) %]'>Delete</a>
+		           [% ELSE %]
+		              <!-- TODO: flag comment -->
+		              <a href=''>Flag Comment</a>
+		           [% END %]			                 
+	           [% END %]     
+	       </li>
+	   [% END %]
+	[% ELSIF c.user_exists %]
+	   <li>Be the first to leave a comment..</li>
+	[% ELSE %]
+	   <li>Login to post a comment</li>
+	[% END %]
+</ul>

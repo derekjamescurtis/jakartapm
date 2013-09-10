@@ -1,0 +1,6 @@
+<h1>Delete Confirm</h1>
+<p>Are you sure you want to delete this news article?</p>
+<form method='post'>
+    <a href='[% c.uri_for( c.controller("News").action_for("article_list") ) %]'>No! Nevermind.</a>
+    <input type='submit' value='Yeah!  Go ahead.' />
+</form>
