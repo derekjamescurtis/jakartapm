@@ -3,6 +3,7 @@ use Moose;
 use namespace::autoclean;
 use JakartaPM::Forms::NewsArticle;
 use JakartaPM::Forms::NewsComment;
+use JakartaPM::Forms::Confirm;
 
 BEGIN { extends 'Catalyst::Controller'; }
 
@@ -345,53 +346,169 @@ sub specific_comment :PathPart('') :Chained('comment_base') :CaptureArgs(1) {
         $c->detach();
     }
     
-    if ($c->user->id != $comment->author_id || !$c->check_any_user_role(qw/superuser moderator/) ) {
+    $c->stash( comment => $comment );
+}
+
+=head2 comment_author_required
+
+Base action for any actions that require the currently-logged in user to be the author of a 
+specific comment (or to be a moderator/superuser).  
+
+=cut
+
+sub comment_author_required :PathPart('') :Chained('specific_comment') :CaptureArgs(0) {
+    my ( $self, $c ) = @_;
+    
+    my $is_mod      = $c->check_any_user_role(qw/superuser moderator/);
+    my $is_author   = $c->user->id != $c->stash->{comment}->author_id;
+    
+    if ( !$is_author && !$is_mod ) {
         
         $c->flash( 'You do not have sufficient privileges to perform this action.' );
         
+        my $article_uri = $c->uri_for( $c->controller('News')->action_for('article_detail'), [ $c->stash->{article}->slug ] );        
         $c->res->redirect($article_uri);
         $c->detach();
     }
     
-    $c->stash( comment => $comment );
+    $c->stash(
+        is_moderator    => $is_mod,
+        is_author       => $is_author,
+    );
 }
 
+=head2 comment_edit
 
-sub comment_edit :PathPart('edit') :Chained('specific_comment') :Args(0) {
-    my ( $self, $c ) = @_;
-    
-    # show/hide superuser controls
-    my $f;
-    if ( $c->check_any_user_role('superuser') ) {
-        $f = JakartaPM::Forms::NewsComment->new( item => $c->stash->{comment}, active => [ 'moderator_deleted', ]);
-    }
-    else {
-        $f = JakartaPM::Forms::NewsComment->new( item => $c->stash->{comment} );
-    }
-    
-    $c->stash( form => $f );
-    
-}
+Displays a form that allows the user to edit the text of a comment.  If the user is a superuser
+or a moderator, they will be able to flag the comment as 'moderator_deleted' which will still display
+the author and date of a comment, but will remove the text and display 'moderator_deleted'.
 
-=head2 
+On postback, changes are actually saved to the database, and the user is redirected back 
+to the article.
 
 =cut
 
-sub comment_delete :PathPart('delete') :Chained('specific_comment') :Args(0) {
+sub comment_edit :PathPart('edit') :Chained('comment_author_required') :Args(0) {
     my ( $self, $c ) = @_;
+    
+    # create the new form -- only show 'moderator_deleted' control to mods/superusers    
+    my $f = JakartaPM::Forms::NewsComment->new( 
+        item    => $c->stash->{comment}, 
+        active  => $c->stash->{is_moderator} ? [ 'moderator_deleted' ] : [] 
+    );
+    
+    if ($c->req->method eq 'POST') {
+        
+        $f->process( params => $c->req->body_params );
+        
+        if ( $f->validated ) {
+            
+            $c->stash( status_msg => 'Comment updated!' );
+            
+            my $article_uri = $c->uri_for( $c->controller('News')->action_for('article_detail'), [ $c->stash->{article}->slug ] );        
+            $c->res->redirect($article_uri);
+            $c->detach();
+        }
+    }
+    
+    $c->stash( form => $f );    
 }
 
-sub moderator_required :PathPart('moderator') :Chained('/members/login_required') :CaptureArgs(0) {
+=head2  comment_delete
+
+Displays a form that prompts the user to confirm whether or not they really want to delete this comment
+
+NOTE:  This is not the same functionality as 'moderator_deleted'.  When deleted through this mechanism, 
+the comment is completely deleted from the system.
+
+=cut
+
+sub comment_delete :PathPart('delete') :Chained('comment_author_required') :Args(0) {
     my ( $self, $c ) = @_;
     
-    # make sure we've got the moderator privilege
-    
+    if ( $c->req->method eq 'POST' ) {
+        
+        $c->stash->{comment}->delete;
+        
+        $c->stash( status_msg => 'Comment deleted.' );
+        
+        my $article_uri = $c->uri_for( $c->controller('News')->action_for('article_detail'), [ $c->stash->{article}->slug ] );
+        $c->res->redirect( $article_uri );
+        $c->detach();
+    }        
 }
 
-sub flagged_comments_list :PathPart('flagged-comments') :Chained('moderator_required') :Args(0) {
+=head2 comment_flag
+
+Shows a form that prompts a user whether or not they really want to flag this comment as spam.  
+
+On postback, the comment will be flagged in the database, an email will be sent to all the 
+moderators configured in the system and then the user will be redirected back to view the 
+article.
+
+=cut
+
+sub comment_flag :PathPart('flag-spam') :Chained('specific_comment') :Args(0) {
     my ( $self, $c ) = @_;
     
+    my $f = JakartaPM::Forms::Confirm->new();
     
+    if ( $c->req->method eq 'POST' ) {
+        $f->process( params => $c->req->body_params );
+        if ($f->validated) {
+                        
+            # TODO: send an e-mail out to moderators
+            
+            # update the database
+            $c->stash->{comment}->requires_moderation(1);
+            $c->stash->{comment}->update;
+            
+            $c->flash( status_msg => 'A moderator has been notified and will take a look at this asap.' );
+            
+            my $article_uri = $c->uri_for( $c->controller('News')->action_for('article_detail'), [ $c->stash->{article}->slug, ] );
+            $c->res->redirect($article_uri);
+            $c->detach();
+        }
+    }    
+    
+    $c->stash( form => $f );
+}
+
+=head2 assert_moderator
+
+Base for any actions that require the logged in user to have moderator or superuser privileges.
+
+If the user doesn't have the required privilege, they're bumped back to the article list page
+and shown a warning message.
+
+=cut
+
+sub assert_moderator :PathPart('moderator') :Chained('/members/login_required') :CaptureArgs(0) {
+    my ( $self, $c ) = @_;
+    
+    unless ( $c->check_any_user_role(qw/moderator superuser/) ) {
+        
+        $c->flash( error_msg => 'You must granted the "moderator" privilege to access this page.' );
+        
+        my $list_uri = $c->uri_for( $c->controller('News')->action_for('article_list') );
+        $c->res->redirect($list_uri);
+        $c->detach();
+    }
+}
+
+=head2 flagged_comments_list
+
+Displays a list of all comments that have been flagged by users as spam/inappropriate.
+
+TODO: pagination here
+
+=cut
+
+sub flagged_comments_list :PathPart('flagged-comments') :Chained('assert_moderator') :Args(0) {
+    my ( $self, $c ) = @_;
+    
+    my @flagged = $c->model('SiteDB::Comment')->search({ requires_moderation => 1 })->all;
+    $c->stash( flagged => \@flagged )    
 }
 
 

@@ -1,6 +1,5 @@
 <h1>Flag Comment</h1>
 <p>Are you sure you want to flag this comment as spam/abusive?</p>
-<form method='post'>
-    <a href='[% c.uri_for( c.controller("News").action_for("article_detail"), [ article.slug ]) %]'>No.  I changed my mind.</a>
-    <input type='submit' value="Yes, I'm sure" />
-</form>
+
+<a href='[% c.uri_for( c.controller("News").action_for("article_detail"), [ article.slug ]) %]'>No.  I changed my mind.</a>
+[% form.render %]

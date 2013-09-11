@@ -37,6 +37,26 @@ sub get_provinces_json {
 
 
 
+sub get_comment_pages :Path('comment/page-count') :Args(1) {
+    my ( $self, $c, $slug ) = @_;
+    
+    my $a = $c->model('SiteDB::Article')->find({ slug => $slug });
+    
+    unless($a) {
+        $c->res->status(500);
+        $c->detach();
+    }
+    else {
+        
+        my $pg_sz = $c->req->query_params->{pg_sz} || $c->config->{default_page_size} || 20;
+        
+        my $comment_ct = $a->comments->count;
+        
+            
+    }
+}
+
+
 
 =head2 end
 

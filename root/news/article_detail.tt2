@@ -38,11 +38,13 @@
 	           [% IF c.user_exists %]
 		           [% IF show_edit_controls or ( c.user.id == comment.author.id ) %]
 		               <a href='[% c.uri_for( c.controller("News").action_for("comment_edit"), [ article.slug, comment.id ] ) %]'>Edit</a> | 
-		               <a href='[% c.uri_for( c.controller("News").action_for("comment_delete"), [ article.slug, comment.id ]) %]'>Delete</a>
+		               <a href='[% c.uri_for( c.controller("News").action_for("comment_delete"), [ article.slug, comment.id ] ) %]'>Delete</a>
 		           [% ELSE %]
-		              <!-- TODO: flag comment -->
-		              <a href=''>Flag Comment</a>
-		           [% END %]			                 
+		              <!-- doesn't make sense to show the user 'flag' controls on their own comments or if they're the moderator -->
+		              <a href='[% c.uri_for( c.controller("News").action_for("comment_flag"), [ article.slug, comment.id ] ) %]'>Flag Comment</a>
+		           [% END %]	
+		           
+		           <a href='[% c.uri_for( c.controller("News").action_for("comment_flag"), [ article.slug, comment.id ] ) %]'>Flag Comment</a>		                 
 	           [% END %]     
 	       </li>
 	   [% END %]
