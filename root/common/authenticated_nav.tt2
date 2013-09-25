@@ -1,0 +1,14 @@
+[% IF c.check_any_user_role('moderator','superuser') %]
+    <a href='[% c.uri_for( c.controller("News").action_for("flagged_comments_list") ) %]'>Moderate Comments<!-- TODO: show number requiring moderation here --></a> |
+[% END %]
+
+[% IF c.check_any_user_role('news_publisher','superuser') %]
+    <a href='[% c.uri_for( c.controller("News").action_for("article_create") ) %]'>Publish News</a> | 
+[% END %]
+
+[% IF c.check_any_user_role('event_publisher','superuser') %]
+    <a href='[% c.uri_for( c.controller("Calendar").action_for("event_create") ) %]'>Publish Event</a> |  
+[% END %]
+
+<a href='[% c.uri_for(c.controller('Members').action_for('edit_profile')) %]'>Edit Profile</a> | 
+<a href='[% c.uri_for(c.controller('Members').action_for('logout')) %]'>Logout</a>

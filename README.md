@@ -42,9 +42,9 @@ On Mac or Linux, chances are you've got Perl 5.10+ so you're already in good sha
 4. Navigate to the project root and run the following commands (install all the optional components when prompted):
 
 ```
-C:\mypath> perl Makefile.PL
-C:\mypath> nmake
-C:\mypath> nmake install
+C:\myapp> perl Makefile.PL
+C:\myapp> nmake
+C:\myapp> nmake install
 ```
 
 ### Linux and Mac OSx
@@ -64,10 +64,13 @@ $ sudo make install
 Rebuilding The Database Schema
 --------
 
-I'm the type of person who likes building a database schema with boxes and lines, rather than creating my model classes, so
+I'm the type of person who likes building a database schema with boxes and lines, rather than creating my model classes first, so
 my standard approach when using MySQL is to build a MySQL Workbench model and make all my changes through that.. Then to sync
 those to whichever database I'm working with.  DBIx::Class has a neat way to dump all these into model classes (and catalyst adds
 to this to create your Model along with your Schema dump).
 
 (On Windows.. on OSx or Linux just reverse the slash in script\jakartapm...)
-perl script\jakartapm_create.pl model SiteDB DBIC::Schema JakartaPM::Schema::SiteDB create=static dbi:mysql:jakartapm root
+
+```
+C:\myapp> perl script\jakartapm_create.pl model SiteDB DBIC::Schema JakartaPM::Schema::SiteDB create=static dbi:mysql:jakartapm root
+```

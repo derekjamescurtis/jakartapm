@@ -1,0 +1,32 @@
+[% title = 'Events for ' _ date.month_name _ ' ' _ date.year %]
+
+<h1>[% title %]</h1>
+
+<nav>	
+	<a href='[% c.uri_for(c.controller("Calendar").action_for("events_for_year_month"), [ prev_date.year, prev_date.month ] ) %]'>Previous</a>	
+	<a href='[% c.uri_for(c.controller("Calendar").action_for("events_for_year_month"), [ next_date.year, next_date.month ] ) %]'>Next</a>
+</nav>
+
+[% IF events.size == 0 %]
+    <p>
+    
+        [% IF is_historic %]
+            <p>
+                Looks like we didn't have any events scheduled this month.  Why don't you check the current month's events?
+            </p>
+        [% ELSE%]
+            <p>
+                We're sorry, it doesn't look like we have any events planned for this month yet.  Check back soon, or if you 
+                have a suggestion, why not suggest it on our mailing list.
+            </p>
+        [% END %]
+    </p>
+[% ELSE %]
+    
+    [% 
+     FOREACH event IN events;        
+         PROCESS 'calendar/calendar_date.tt2';                
+     END; 
+    %]
+
+[% END %]

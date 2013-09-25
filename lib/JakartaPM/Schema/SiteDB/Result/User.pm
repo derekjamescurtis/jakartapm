@@ -275,9 +275,50 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 events_2s
 
-# Created by DBIx::Class::Schema::Loader v0.07036 @ 2013-09-09 09:49:32
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:TM81D+F7KLETt5GkLMC2Aw
+Type: has_many
+
+Related object: L<JakartaPM::Schema::SiteDB::Result::Event>
+
+=cut
+
+__PACKAGE__->has_many(
+  "events_2s",
+  "JakartaPM::Schema::SiteDB::Result::Event",
+  { "foreign.organizer_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+=head2 events_attending
+
+Type: has_many
+
+Related object: L<JakartaPM::Schema::SiteDB::Result::EventAttending>
+
+=cut
+
+__PACKAGE__->has_many(
+  "events_attending",
+  "JakartaPM::Schema::SiteDB::Result::EventAttending",
+  { "foreign.attendee_id" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
+=head2 events
+
+Type: many_to_many
+
+Composing rels: L</events_attending> -> event
+
+=cut
+
+__PACKAGE__->many_to_many("events", "events_attending", "event");
+
+
+# Created by DBIx::Class::Schema::Loader v0.07036 @ 2013-09-12 12:30:39
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Jd3T8reAkIvsdH5Cw+fueA
+
 
 use Carp;
 use Data::Dumper;

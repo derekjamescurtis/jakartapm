@@ -35,47 +35,9 @@ sub index :Path :Args(0) {
 =head2 about
 
 =cut
+
 sub about :Path('about') :Args(0) {
     my ( $self, $c ) = @_;
-}
-
-=head2 events
-
-By default, we'll let people access our events calendar without specifying a year/month in the URL. 
-If they don't, then we'll assume they want to see the current year/month.
-
-=cut
-sub events :Path('events') :Args(0) {
-    my ( $self, $c ) = @_;
-    
-    my $dt = DateTime->now();
-    my $action = $c->controller->action_for('events_for_year_month');
-    
-    # in this case, we actually turn the processing over to the events_for_year_months action so we keep our code dry
-    $c->detach($action, [ $dt->year(), $dt->month() ]);
-}
-
-=head2 events_for_year_month
-
-    URL: /events/{year}/{month}
-=cut
-
-sub events_for_year_month :Path('events') :Args(2) {
-    my ( $self, $c, $year, $month ) = @_;
-    
-    my $dt      = DateTime->new(month => $month, year => $year);
-    my $prev    = $dt->clone->subtract(months => 1);
-    my $next    = $dt->clone->add(months => 1);
-    
-    # todo: get and stash our calendar events
-    
-    $c->stash(
-        date        => $dt,
-        prev_date   => $prev,
-        next_date   => $next,
-        template    => 'events.tt2',
-    );
-    
 }
 
 =head2 contact

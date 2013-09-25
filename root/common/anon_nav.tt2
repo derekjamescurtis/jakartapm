@@ -1,0 +1,2 @@
+<a href='[% c.uri_for(c.controller('Members').action_for('login')) %]'>Login</a> | 
+<a href='[% c.uri_for(c.controller('Members').action_for('register')) %]'>Register</a>

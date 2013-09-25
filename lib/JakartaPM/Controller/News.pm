@@ -15,16 +15,125 @@ JakartaPM::Controller::News - Catalyst Controller
 
 Catalyst Controller.
 
-=head1 METHODS
+=head1 ACTION METHODS
 
-=head2 article_publisher_required 
+=over 4
+
+=item article_publisher_required 
 
 Start of the processing chain for all articles that require a user to be in the news_publisher role
 If the user isn't in that role
 
+=head2 article_create
+
+=head2 specific_article
+
+Any actions that deal with modifications to a specific, already created article
+will be chained off this method.  
+
+If the currently-logged in user did not autor the article, or the user is not
+assigned to the role of 'superuser' they will be redirected away and warned
+they cannot perform the action that they're attempting.
+
+=item article_edit
+
+Displays a form very similar to the article create action, except this modifies an already-created
+article.  
+
+On postback, validates and then saves the Article data back to the database.  Additionally, the 
+article will have a modified_date set in the database (which is null when an article is created).
+After successful validation, the user will be redirected back to the article detail page.
+
+=item article_delete
+
+Displays a confirmation request that allows the user to confirm that, yes they really really truely
+do want to delete this article (or they can click a cancel button to back off).
+
+On postback, actually deletes this particular article and redirect the user back to the article list.
+
+=item article_list
+
+Displays a list of articles to the user.
+
+TODO: actually, I don't want to populate the list of articles here.. this would be a better place to demonstrate
+how to use AJAX with catalyst (I don't want to do that with the calendar because people may want to bookmark a particular
+month in the calendar or copy+paste the url for a specific date somewhere..).
+
+=item article_detail
+
+Displays the full text of an article.
+
+If the current user is either the Article's author, or assigned to the role of superuser,
+edit and delete controls will be displays as well.
+
+=item comment_base
+
+This is the base action for all comment-related actions.  As part of the URL, it expects the slug 
+of the Article that the comment is being left for.  The Article will be looked up and stored in
+the stash for further actions.
+
+=item comment_create
+
+Displays a new form to the user that allows them to input the text for their comment.
+
+TODO: Although our model supports threaded comments, we're not going to support that right
+off the bat.  I don't really have the time to put into that right now, so the simpler 
+things are, the better.
+
+=item specific_comment
+
+Base for any items in the processing chain that require action on a specifc comment that has
+already been created.
+
+=item comment_author_required
+
+Base action for any actions that require the currently-logged in user to be the author of a 
+specific comment (or to be a moderator/superuser).  
+
+=item comment_edit
+
+Displays a form that allows the user to edit the text of a comment.  If the user is a superuser
+or a moderator, they will be able to flag the comment as 'moderator_deleted' which will still display
+the author and date of a comment, but will remove the text and display 'moderator_deleted'.
+
+On postback, changes are actually saved to the database, and the user is redirected back 
+to the article.
+
+=item comment_delete
+
+Displays a form that prompts the user to confirm whether or not they really want to delete this comment
+
+NOTE:  This is not the same functionality as 'moderator_deleted'.  When deleted through this mechanism, 
+the comment is completely deleted from the system.
+
+=item comment_flag
+
+Shows a form that prompts a user whether or not they really want to flag this comment as spam.  
+
+On postback, the comment will be flagged in the database, an email will be sent to all the 
+moderators configured in the system and then the user will be redirected back to view the 
+article.
+
+=item assert_moderator
+
+Base for any actions that require the logged in user to have moderator or superuser privileges.
+
+If the user doesn't have the required privilege, they're bumped back to the article list page
+and shown a warning message.
+
+=item flagged_comments_list
+
+Displays a list of all comments that have been flagged by users as spam/inappropriate.
+
+TODO: pagination here
+
+=back
+
+=encoding utf8
+
 =cut
 
-sub news_publisher_required :PathPart('news') :Chained('/members/login_required') :CaptureArgs(0) {
+sub news_publisher_required : PathPart('news') Chained('/members/login_required') CaptureArgs(0) {
     my ( $self, $c ) = @_;
     
     unless ( $c->check_any_user_role( qw/superuser news_publisher/ ) ){
@@ -37,18 +146,13 @@ sub news_publisher_required :PathPart('news') :Chained('/members/login_required'
     }    
 }
 
-=head2 article_create
-
-
-=cut
-
-sub article_create :PathPart('create') :Chained('news_publisher_required') :Args(0) {
+sub article_create : PathPart('create') Chained('news_publisher_required') Args(0) {
     my ( $self, $c ) = @_;
     
+    my $a = $c->model('SiteDB::Article')->new({ author => $c->user->get_object, });
     my $f = JakartaPM::Forms::NewsArticle->new( 
-        item => $c->model('SiteDB::Article')->new({ 
-            author      => $c->user->get_object,            
-        }));
+        item => $a
+    );
         
     if ($c->req->method eq 'POST') {
         
@@ -58,7 +162,8 @@ sub article_create :PathPart('create') :Chained('news_publisher_required') :Args
             
             $c->flash( status_msg => 'Article Posted!' );
             
-            my $list_uri = $c->uri_for( $c->controller->('News')->action_for('article_list') );
+            # TODO: raises exception 'not a code reference' at linke 165 .. not sure this if the URL lookup or the flash message being set 
+            my $list_uri = $c->uri_for( $c->controller('News')->action_for('article_list') );
             $c->res->redirect($list_uri);
             $c->detach();
         }
@@ -71,18 +176,7 @@ sub article_create :PathPart('create') :Chained('news_publisher_required') :Args
     $c->stash( form => $f );
 }
 
-=head2 specific_article
-
-Any actions that deal with modifications to a specific, already created article
-will be chained off this method.  
-
-If the currently-logged in user did not autor the article, or the user is not
-assigned to the role of 'superuser' they will be redirected away and warned
-they cannot perform the action that they're attempting.
-
-=cut
-
-sub specific_article :PathPart('') :Chained('news_publisher_required') :CaptureArgs(1) {
+sub specific_article : PathPart('') Chained('news_publisher_required') CaptureArgs(1) {
     my ( $self, $c, $slug ) = @_;
         
     # lookup the article
@@ -113,18 +207,7 @@ sub specific_article :PathPart('') :Chained('news_publisher_required') :CaptureA
     }
 }
 
-=head2 article_edit
-
-Displays a form very similar to the article create action, except this modifies an already-created
-article.  
-
-On postback, validates and then saves the Article data back to the database.  Additionally, the 
-article will have a modified_date set in the database (which is null when an article is created).
-After successful validation, the user will be redirected back to the article detail page.
-
-=cut
-
-sub article_edit :PathPart('edit') :Chained('specific_article') :Args(0) {
+sub article_edit : PathPart('edit') Chained('specific_article') Args(0) {
     my ( $self, $c ) = @_;
     
     my $f = JakartaPM::Forms::NewsArticle->new( item => $c->stash->{article} );
@@ -150,16 +233,7 @@ sub article_edit :PathPart('edit') :Chained('specific_article') :Args(0) {
     $c->stash( form => $f );    
 }
 
-=head2 article_delete
-
-Displays a confirmation request that allows the user to confirm that, yes they really really truely
-do want to delete this article (or they can click a cancel button to back off).
-
-On postback, actually deletes this particular article and redirect the user back to the article list.
-
-=cut
-
-sub article_delete :PathPart('delete') :Chained('specific_article') :Args(0) {
+sub article_delete : PathPart('delete') Chained('specific_article') Args(0) {
     my ( $self, $c ) = @_;
     
     if ($c->req->method eq 'POST') {
@@ -174,17 +248,7 @@ sub article_delete :PathPart('delete') :Chained('specific_article') :Args(0) {
     }    
 }
 
-=head2 article_list
-
-Displays a list of articles to the user.
-
-TODO: actually, I don't want to populate the list of articles here.. this would be a better place to demonstrate
-how to use AJAX with catalyst (I don't want to do that with the calendar because people may want to bookmark a particular
-month in the calendar or copy+paste the url for a specific date somewhere..).
-
-=cut
-
-sub article_list :Path('') :Args(0) {
+sub article_list : Path('') Args(0) {
     my ( $self, $c ) = @_;
     
     # todo: support pagination and ajax loading of articles.. 
@@ -194,16 +258,7 @@ sub article_list :Path('') :Args(0) {
     $c->stash(articles => \@articles,); 
 }
 
-=head2 article_detail
-
-Displays the full text of an article.
-
-If the current user is either the Article's author, or assigned to the role of superuser,
-edit and delete controls will be displays as well.
-
-=cut
-
-sub article_detail :Path('article') :Args(1) {
+sub article_detail : Path('article') Args(1) {
     my ( $self, $c, $slug ) = @_;
     
     # make sure we can look up this article by it's slug
@@ -260,15 +315,7 @@ sub article_detail :Path('article') :Args(1) {
     
 }
 
-=head2 comment_base
-
-This is the base action for all comment-related actions.  As part of the URL, it expects the slug 
-of the Article that the comment is being left for.  The Article will be looked up and stored in
-the stash for further actions.
-
-=cut
-
-sub comment_base :PathPart('comment') :Chained('/members/login_required') :CaptureArgs(1) {
+sub comment_base : PathPart('comment') Chained('/members/login_required') CaptureArgs(1) {
     my ( $self, $c, $slug ) = @_;
     
     my $a = $c->model('SiteDB::Article')->find({ slug => $slug });
@@ -285,17 +332,7 @@ sub comment_base :PathPart('comment') :Chained('/members/login_required') :Captu
     $c->stash( article => $a );
 }
 
-=head2 comment_create
-
-Displays a new form to the user that allows them to input the text for their comment.
-
-TODO: Although our model supports threaded comments, we're not going to support that right
-off the bat.  I don't really have the time to put into that right now, so the simpler 
-things are, the better.
-
-=cut
-
-sub comment_create :PathPart('create') :Chained('comment_base') :Args(0) {
+sub comment_create : PathPart('create') Chained('comment_base') Args(0) {
     my ( $self, $c ) = @_;
     
     my $comment = $c->model('SiteDB::Comment')->new({ 
@@ -323,14 +360,7 @@ sub comment_create :PathPart('create') :Chained('comment_base') :Args(0) {
     $c->stash( form => $f );
 }
 
-=head2 specific_comment
-
-Base for any items in the processing chain that require action on a specifc comment that has
-already been created.
-
-=cut
-
-sub specific_comment :PathPart('') :Chained('comment_base') :CaptureArgs(1) {
+sub specific_comment : PathPart('') Chained('comment_base') CaptureArgs(1) {
     my ( $self, $c, $id ) = @_;
     
     my $comment = $c->model('SiteDB::Comment')->find($id);
@@ -349,14 +379,7 @@ sub specific_comment :PathPart('') :Chained('comment_base') :CaptureArgs(1) {
     $c->stash( comment => $comment );
 }
 
-=head2 comment_author_required
-
-Base action for any actions that require the currently-logged in user to be the author of a 
-specific comment (or to be a moderator/superuser).  
-
-=cut
-
-sub comment_author_required :PathPart('') :Chained('specific_comment') :CaptureArgs(0) {
+sub comment_author_required : PathPart('') Chained('specific_comment') CaptureArgs(0) {
     my ( $self, $c ) = @_;
     
     my $is_mod      = $c->check_any_user_role(qw/superuser moderator/);
@@ -377,18 +400,7 @@ sub comment_author_required :PathPart('') :Chained('specific_comment') :CaptureA
     );
 }
 
-=head2 comment_edit
-
-Displays a form that allows the user to edit the text of a comment.  If the user is a superuser
-or a moderator, they will be able to flag the comment as 'moderator_deleted' which will still display
-the author and date of a comment, but will remove the text and display 'moderator_deleted'.
-
-On postback, changes are actually saved to the database, and the user is redirected back 
-to the article.
-
-=cut
-
-sub comment_edit :PathPart('edit') :Chained('comment_author_required') :Args(0) {
+sub comment_edit : PathPart('edit') Chained('comment_author_required') Args(0) {
     my ( $self, $c ) = @_;
     
     # create the new form -- only show 'moderator_deleted' control to mods/superusers    
@@ -414,16 +426,7 @@ sub comment_edit :PathPart('edit') :Chained('comment_author_required') :Args(0) 
     $c->stash( form => $f );    
 }
 
-=head2  comment_delete
-
-Displays a form that prompts the user to confirm whether or not they really want to delete this comment
-
-NOTE:  This is not the same functionality as 'moderator_deleted'.  When deleted through this mechanism, 
-the comment is completely deleted from the system.
-
-=cut
-
-sub comment_delete :PathPart('delete') :Chained('comment_author_required') :Args(0) {
+sub comment_delete : PathPart('delete') Chained('comment_author_required') Args(0) {
     my ( $self, $c ) = @_;
     
     if ( $c->req->method eq 'POST' ) {
@@ -438,17 +441,7 @@ sub comment_delete :PathPart('delete') :Chained('comment_author_required') :Args
     }        
 }
 
-=head2 comment_flag
-
-Shows a form that prompts a user whether or not they really want to flag this comment as spam.  
-
-On postback, the comment will be flagged in the database, an email will be sent to all the 
-moderators configured in the system and then the user will be redirected back to view the 
-article.
-
-=cut
-
-sub comment_flag :PathPart('flag-spam') :Chained('specific_comment') :Args(0) {
+sub comment_flag : PathPart('flag-spam') Chained('specific_comment') Args(0) {
     my ( $self, $c ) = @_;
     
     my $f = JakartaPM::Forms::Confirm->new();
@@ -474,16 +467,7 @@ sub comment_flag :PathPart('flag-spam') :Chained('specific_comment') :Args(0) {
     $c->stash( form => $f );
 }
 
-=head2 assert_moderator
-
-Base for any actions that require the logged in user to have moderator or superuser privileges.
-
-If the user doesn't have the required privilege, they're bumped back to the article list page
-and shown a warning message.
-
-=cut
-
-sub assert_moderator :PathPart('moderator') :Chained('/members/login_required') :CaptureArgs(0) {
+sub assert_moderator : PathPart('moderator') Chained('/members/login_required') CaptureArgs(0) {
     my ( $self, $c ) = @_;
     
     unless ( $c->check_any_user_role(qw/moderator superuser/) ) {
@@ -496,23 +480,12 @@ sub assert_moderator :PathPart('moderator') :Chained('/members/login_required') 
     }
 }
 
-=head2 flagged_comments_list
-
-Displays a list of all comments that have been flagged by users as spam/inappropriate.
-
-TODO: pagination here
-
-=cut
-
-sub flagged_comments_list :PathPart('flagged-comments') :Chained('assert_moderator') :Args(0) {
+sub flagged_comments_list : PathPart('flagged-comments') Chained('assert_moderator') Args(0) {
     my ( $self, $c ) = @_;
     
     my @flagged = $c->model('SiteDB::Comment')->search({ requires_moderation => 1 })->all;
     $c->stash( flagged => \@flagged )    
 }
-
-
-=encoding utf8
 
 =head1 AUTHOR
 

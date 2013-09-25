@@ -7,9 +7,7 @@ __PACKAGE__->config(
     schema_class => 'JakartaPM::Schema::SiteDB',
     
     connect_info => {
-        dsn => 'dbi:mysql:jakartapm',
-        user => 'root',
-        password => '',
+        dsn => 'dbi:sqlite:jakartapm.db',        
     }
 );
 

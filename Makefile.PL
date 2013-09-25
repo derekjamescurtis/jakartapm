@@ -18,11 +18,15 @@ requires 'Moose';
 requires 'namespace::autoclean';
 requires 'Config::General';
 
+requires 'Modern::Perl' => '1.20121103';
+requires 'Path::Class' => '0.32';
+
 # A specialized view for rendering TemplateToolkit based templates
 requires 'Catalyst::View::TT' => '0.41';
 
 # First is the driver to connect to our chosen database.  The second is used to regenerate our model classes if we change the schema
 requires 'DBD::mysql' => '4.023';
+requires 'DBD::SQLite' => '1.40';
 requires 'Catalyst::Model::DBIC::Schema' => '0.61';
 requires 'DateTime::Format::MySQL' => '0.04';
 requires 'MooseX::MarkAsMethods' => '0.15';
@@ -33,6 +37,7 @@ requires 'HTML::FormHandler' => '0.40027';
 requires 'HTML::FormHandler::Model::DBIC' => '0.26';
 requires 'Email::Valid' => '0.190'; # required for automatic validation of e-mail fields
 requires 'Locale::SubCountry' => '1.62'; # automatic population of country/province names
+requires 'Data::ICal' => '0.21';
 
 # email sending (templated + otherwise)
 requires 'Catalyst::View::Email' => '0.33';

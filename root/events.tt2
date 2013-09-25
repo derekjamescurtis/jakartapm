@@ -1,8 +1,0 @@
-[% title = 'Events for ' _ date.month_name _ ' ' _ date.year %]
-
-<h1>[% title %]</h1>
-
-<nav>	
-	<a href='[% c.uri_for(c.controller("Root").action_for("events_for_year_month"), [ prev_date.year, prev_date.month ] ) %]'>Previous</a>	
-	<a href='[% c.uri_for(c.controller("Root").action_for("events_for_year_month"), [ next_date.year, next_date.month ] ) %]'>Next</a>
-</nav>

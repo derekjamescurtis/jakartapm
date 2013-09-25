@@ -1,0 +1,15 @@
+[%
+    SET home_uri        = c.uri_for( c.controller("Root").action_for("index") );
+    SET about_uri       = c.uri_for( c.controller("Root").action_for("about") );
+    SET news_uri        = c.uri_for( c.controller("News").action_for("article_list") );
+    SET calendar_uri    = c.uri_for( c.controller("Calendar").action_for("events") );
+    SET contact_uri     = c.uri_for( c.controller("Root").action_for("contact") );
+    SET mailinglist_uri = 'http://mail.pm.org/mailman/listinfo/jakarta-pm';
+%]
+
+<li><a href='[% home_uri %]'>Home</a></li>
+<li><a href='[% about_uri %]'>About</a></li>
+<li><a href='[% news_uri %]'>News</a></li>
+<li><a href='[% calendar_uri %]'>Events</a></li>
+<li><a href='[% contact_uri %]'>Contact</a></li>
+<li><a href='[% mailinglist_uri %]'>Mailing List</a>

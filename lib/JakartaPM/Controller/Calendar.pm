@@ -1,8 +1,12 @@
 package JakartaPM::Controller::Calendar;
 use Moose;
 use namespace::autoclean;
+use JakartaPM::Forms::Event;
+use DateTime;
 
 BEGIN { extends 'Catalyst::Controller'; }
+
+__PACKAGE__->config(namespace => 'events');
 
 =head1 NAME
 
@@ -12,24 +16,150 @@ JakartaPM::Controller::Calendar - Catalyst Controller
 
 Catalyst Controller.
 
-=head1 METHODS
+I should actually probably changed the name of this controller from Calendar to Events.. 
 
-=cut
+=head1 ACTION METHODS
 
+=over 4
 
-=head2 index
+=item assert_event_publisher
 
-=cut
+Requires that the current logged-in user has the role of 'event_publisher' or 'superuser'
 
-sub index :Path :Args(0) {
-    my ( $self, $c ) = @_;
+=item event_create
 
-    $c->response->body('Matched JakartaPM::Controller::Calendar in Calendar.');
-}
+=item events
 
+By default, we'll let people access our events calendar without specifying a year/month in the URL. 
+If they don't, then we'll assume they want to see the current year/month.
 
+=item events_for_year_month
+
+Same as the events sub, 
+
+URL: /events/{year}/{month}
+
+=back
 
 =encoding utf8
+
+=cut
+
+sub assert_event_publisher : PathPart('events') Chained('/members/login_required') CaptureArgs(0) {
+    my ( $self, $c ) = @_;
+    
+    # todo: make sure the user has the event publishr | superuser role
+    
+}
+
+sub event_create : PathPart('create') Chained('assert_event_publisher') Args(0) {
+    my ( $self, $c ) = @_;
+    
+    my $e = $c->model('SiteDB::Event')->new({ 
+        dtstart => DateTime->now,
+        dtend   => DateTime->now->add( hours => 1 ),
+        dtstamp => DateTime->now,
+    });
+    my $f = JakartaPM::Forms::Event->new( item => $e );
+    
+    # if the method is post, then try to validate and write to the database
+    if ($c->req->method eq 'POST') {
+       
+        # on a post request, we need to also manually generate and assign a UID to our event object
+        # (it's part of iCal, that we want to support)
+        $e->uid( sprintf( '%s-%s@jakarta.pm.org', $e->dtstart, $e->dtend ));
+        
+        $f->process( params => $c->req->body_params );
+        if ( $f->validated ) {
+            
+            $c->flash( status_msg =>  'Event Created!' );
+            
+            # redirect the client to view the event they just made
+            my $a = $c->controller('Calendar')->action_for('view_event');
+            my $event_uri = $c->uri_for( $a, [ $e->id ] );
+            $c->res->redirect( $event_uri );
+            $c->detach();            
+        }
+    }    
+     
+    $c->stash(
+        form => $f,
+        template => 'calendar/event_create.tt2',
+    );    
+}
+
+sub specific_event : PathPart('event') Chained('/') CaptureArgs(1) {
+    my ( $self, $c, $event_id ) = @_;
+    
+    my $event = $c->model('SiteDB::Event')->find($event_id);
+    
+    if (!defined $event) {
+        $c->flash( error_msg => 'Oops. We couldn\'t find the event you were looking for.' );
+        
+        my $events_uri = $c->uri_for( $c->controller('Calendar')->action_for('events') );
+        $c->res->redirect( $events_uri );
+        $c->detach;        
+    }
+    
+    $c->stash( event => $event );
+}
+
+sub alter_event : PathPart('') Chained('specific_event') CaptureArgs(0) {
+    my ( $self, $c ) = @_;
+    
+    my $a = $c->controller('Calendar')->action_for('assert_event_publisher');
+    $c->forward( $a );    
+}
+
+# TODO: implement
+sub edit_event : PathPart('edit') Chained('alter_event') Args(0) { }
+
+# TODO: implement
+sub delete_event : PathPart('delete') Chained('alter_event') Args(0) { }
+
+# no implementation required! =D
+sub view_event : PathPart('') Chained('specific_event') Args(0) { 
+    my ($self, $c) = @_;
+    $c->stash( template => 'calendar/view_event.tt2' );
+}
+
+sub events : Path('') Args(0) {
+    my ( $self, $c ) = @_;
+    
+    my $dt = DateTime->now();
+    my $action = $c->controller('Calendar')->action_for('events_for_year_month');
+    
+    # in this case, we actually turn the processing over to the events_for_year_months action so we keep our code dry
+    $c->detach($action, [ $dt->year(), $dt->month() ]);
+}
+
+sub events_for_year_month : Path('') Args(2) {
+    my ( $self, $c, $year, $month ) = @_;
+    
+    my $dt      = DateTime->new(month => $month, year => $year);
+    
+    # used to display links to previous/next months' events
+    my $prev    = $dt->clone->subtract(months => 1);
+    my $next    = $dt->clone->add(months => 1);
+    
+    # only used here in the following query so we know when this month ends 
+    my $end_of_month = DateTime->last_day_of_month(month => $month, year => $year, hour => '23', minute => '59', second => '59');
+    
+    my @events = $c->model('SiteDB::Event')->search({ 
+            dtstart => { '>=' , $dt }, 
+            dtend   => { '<=' , $end_of_month } }
+        )->all();
+     
+    $c->stash(        
+        events      => \@events,
+        is_historic => DateTime->compare( $dt, DateTime->now->truncate( to => 'month' )) < 0 ? 1 : 0,
+        date        => $dt,
+        prev_date   => $prev,
+        next_date   => $next,
+        template    => 'calendar/events.tt2',
+    );    
+}
+
 
 =head1 AUTHOR
 
