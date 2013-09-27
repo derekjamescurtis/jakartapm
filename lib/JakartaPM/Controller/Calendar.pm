@@ -48,8 +48,14 @@ URL: /events/{year}/{month}
 sub assert_event_publisher : PathPart('events') Chained('/members/login_required') CaptureArgs(0) {
     my ( $self, $c ) = @_;
     
-    # todo: make sure the user has the event publishr | superuser role
-    
+    unless ($c->check_any_user_role(qw/superuser event_publisher/)) {
+        
+        $c->flash( error_msg => "Sorry, you don't have permission to go there." );
+        
+        my $root_uri = $c->uri_for( $c->controller('Root')->action_for('index') );
+        $c->res->redirect( $root_uri );
+        $c->detach();
+    }
 }
 
 sub event_create : PathPart('create') Chained('assert_event_publisher') Args(0) {
@@ -75,7 +81,7 @@ sub event_create : PathPart('create') Chained('assert_event_publisher') Args(0) 
             $c->flash( status_msg =>  'Event Created!' );
             
             # redirect the client to view the event they just made
-            my $a = $c->controller('Calendar')->action_for('view_event');
+            my $a = $c->controller('Calendar')->action_for('event_detail');
             my $event_uri = $c->uri_for( $a, [ $e->id ] );
             $c->res->redirect( $event_uri );
             $c->detach();            
@@ -111,16 +117,61 @@ sub alter_event : PathPart('') Chained('specific_event') CaptureArgs(0) {
     $c->forward( $a );    
 }
 
-# TODO: implement
-sub edit_event : PathPart('edit') Chained('alter_event') Args(0) { }
+sub event_edit : PathPart('edit') Chained('alter_event') Args(0) { 
+    my ( $self, $c ) = @_;
+    
+    my $e = $c->stash->{event};
+    my $f = JakartaPM::Forms::Event->new( item => $e );
+    
+    if ( $c->req->method eq 'POST' ) {
+        
+        $f->process( params => $c->req->body_params );
+        
+        if ( $f->validated ) {
+            
+            $c->flash( status_msg => 'Updated event!' );
+            
+            my $event_uri = $c->uri_for( $c->controller('Calendar')->action_for('event_detail'), [ $e->id, ] );
+            $c->res->redirect( $event_uri );
+            $c->detach();
+        }
+    }
+    
+    $c->stash( 
+        form => $f,
+        template => 'calendar/event_edit.tt2', 
+    );    
+}
 
-# TODO: implement
-sub delete_event : PathPart('delete') Chained('alter_event') Args(0) { }
+sub event_delete : PathPart('delete') Chained('alter_event') Args(0) { 
+    my ( $self, $c ) = @_;
+    
+    my $e = $c->stash->{event};
+    
+    if ( $c->req->method eq 'POST' ) {
+        
+        $e->delete;
+        
+        $c->flash( status_msg => 'Event deleted.' );
+        
+        my $events_uri = $c->uri_for( $c->controller('Calendar')->action_for('events') );
+        $c->res->redirect( $events_uri );
+        $c->detach();
+    }
+    
+    $c->stash( template => 'calendar/event_delete.tt2' );
+    
+}
 
-# no implementation required! =D
-sub view_event : PathPart('') Chained('specific_event') Args(0) { 
+sub event_detail : PathPart('') Chained('specific_event') Args(0) { 
     my ($self, $c) = @_;
-    $c->stash( template => 'calendar/view_event.tt2' );
+    
+    # display edit controls if the user is allowed to edit this article
+    if ($c->check_any_user_role(qw/superuser event_publisher/)) {
+        $c->stash( show_edit_controls => 1 );
+    }
+    
+    $c->stash( template => 'calendar/event_detail.tt2' );    
 }
 
 sub events : Path('') Args(0) {

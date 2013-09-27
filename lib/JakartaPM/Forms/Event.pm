@@ -32,14 +32,17 @@ sub validate {
     
     # make sure dtstart is before dtend
     my $start_time  = $self->field('dtstart')->value;
-    my $end_time    = $self->field('dtend')->value;
-    
-    # because I always forget the semantics of this method..
-    if (DateTime->compare($start_time, $end_time) > 1) {
-        $self->field('dtstart')->add_error('Start Time must be prior to End Time');
+    my $end_time    = $self->field('dtend')->value;    
+    if (DateTime->compare($start_time, $end_time) > 0) {
+        $self->field('dtstart')->add_error('Start Time must be prior to End Time');        
     }
     
-    # todo: .. should probably make sure they're on the same day too just for logical sense
+    # make sure they're on the same day .. just to make logical sense
+    $start_time->truncate( to => 'day' );
+    $end_time->truncate( to => 'day' );
+    if (DateTime->compare($start_time, $end_time) != 0) {
+        $self->field('dtstart')->add_error('Start Time and End Time must be on the same calendar date.');
+    }
     
 }
 

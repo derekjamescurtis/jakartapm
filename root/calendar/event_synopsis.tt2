@@ -1,0 +1,14 @@
+[% USE date %]
+
+<div class='row'>
+    <div class='col-md-2'>
+        <p>[% date.format( event.dtstart, '%d' ) %]</p>
+        <p>[% date.format( event.dtstart, '%A' ) %]</p>
+    </div>
+    <div class='col-md-10'>
+        <p>Start: [% date.format( event.dtstart, '%H:%M' ) %] / End: [% date.format( event.dtend, '%H:%M' ) %]</p>
+        <p>[% event.summary %]</p>
+        <p>Organized by [% event.organizer.username %]</p>
+        <a href='[% c.uri_for( c.controller("Calendar").action_for("event_detail"), [ event.id, ] ) %]'>Full Details</a>
+    </div>
+</div>

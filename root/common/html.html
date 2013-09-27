@@ -72,6 +72,11 @@
 
 
 	[% post_js_includes %]
+	
+	[% UNLESS c.debug;
+	       PROCESS 'common/google_analytics.tt2';      
+	   END;
+	-%]
 
   </body>
 </html>

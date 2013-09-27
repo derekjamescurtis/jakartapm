@@ -2,11 +2,8 @@ article_detail needs to have a back link to article_list
 
 locked articles
 
-event calendar
-- draw
-- create
-- edit
-- delete
-- attending event
+superuser list/delete/edit members
 
 ical downloads
+
+unit tests and such

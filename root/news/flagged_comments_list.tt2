@@ -1,10 +1,14 @@
 <h1>Flagged Comments</h1>
 <ul>
-	[% FOREACH f IN flagged %]
-	<li>
-	   <h3>[% f.pub_date %] - [% f.author.username %]</h3>
-	   <p>[% f.comment %]</p>
-	   <p>TODO: edit controls here</p>
-	</li>
+    [% IF flagged.size == 0 %]
+        <li>No flagged comments!  Hooray.</li>
+    [% ELSE %]
+		[% FOREACH f IN flagged %]
+		<li>
+		   <h3>[% f.pub_date %] - [% f.author.username %]</h3>
+		   <p>[% f.comment %]</p>
+		   <p>TODO: edit controls here</p>
+		</li>
+		[% END %]
 	[% END %]
 </ul>

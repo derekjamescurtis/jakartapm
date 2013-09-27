@@ -1,0 +1,7 @@
+[% IF show_edit_controls; 
+    SET edit_event_uri = c.uri_for( c.controller('Calendar').action_for('event_edit'), [ event.id ] );
+    SET delete_event_uri = c.uri_for( c.controller('Calendar').action_for('event_delete'), [ event.id ]);
+-%]
+<a href='[% edit_event_uri %]'>Edit</a> | 
+<a href='[% delete_event_uri %]'>Delete</a>
+[% END %]
