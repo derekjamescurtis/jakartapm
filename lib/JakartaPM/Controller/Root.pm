@@ -2,6 +2,8 @@ package JakartaPM::Controller::Root;
 use Moose;
 use namespace::autoclean;
 use JakartaPM::Forms::Contact;
+use JakartaPM::Forms::Login;
+use JakartaPM::Forms::Register;
 use DateTime;
 
 BEGIN { extends 'Catalyst::Controller' }
@@ -26,12 +28,32 @@ The root page (/)
 
 =cut
 
+sub begin : Private {
+    my ($self, $c) = @_;
+    
+    unless ($c->user_exists){
+                
+        my $login_form  = JakartaPM::Forms::Login->new( 
+            name => 'navbar-login-form', 
+            action => $c->uri_for( $c->controller('Members')->action_for('login') ), );
+        
+        my $register_form = JakartaPM::Forms::Register->new( 
+            name => 'navbar-register-form', 
+            action => $c->uri_for( $c->controller('Members')->action_for('register')), 
+            catalyst => $c, );
+           
+        $c->stash( 
+            login_form      => $login_form, 
+            register_form   => $register_form , );
+    }
+}
+
 sub index :Path :Args(0) {
     my ( $self, $c ) = @_;
     
     $c->stash( 
-        active_nav_id => 'nav-home',
-        no_content_container => 1, 
+        active_nav_id           => 'nav-home',
+        no_content_container    => 1, 
     );
 }
 
@@ -41,6 +63,12 @@ sub index :Path :Args(0) {
 
 sub about :Path('about') :Args(0) {
     my ( $self, $c ) = @_;
+    
+    $c->stash( 
+        active_nav_id => 'nav-about', 
+        header_img_url => '/static/images/jakarta-street.jpg',
+        );
+    
 }
 
 =head2 contact
@@ -92,7 +120,11 @@ sub contact :Path('contact') :Args(0) {
         }
     }
         
-    $c->stash(form => $f);    
+    $c->stash(
+        form            => $f,
+        active_nav_id   => 'nav-contact',
+        header_img_url  => '/static/images/mail.jpg',
+    );    
 }
 
 =head2 default

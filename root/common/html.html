@@ -10,15 +10,14 @@
     <link rel='stylesheet' media='screen' href='/static/bootstrap-3.0.0/css/bootstrap.css' />
     <link rel='stylesheet' media='screen' href='/static/bootstrap-3.0.0/css/bootstrap-theme.css' />
     <link rel='stylesheet' media='screen' href='/static/css/styles.css' />
+    <link href="/static/css/carousel.css" rel="stylesheet">
+    <style id="holderjs-style" type="text/css">.holderjs-fluid {font-size:16px;font-weight:bold;text-align:center;font-family:sans-serif;margin:0}</style>
     [% ELSE %]
     <!-- TODO: include minified -->
     [% END %]
     
     <link rel='shortcut icon' href='/static/images/catalyst-favicon.ico' />
-    
-    
-    <link href="/static/css/carousel.css" rel="stylesheet">
-    <style id="holderjs-style" type="text/css">.holderjs-fluid {font-size:16px;font-weight:bold;text-align:center;font-family:sans-serif;margin:0}</style>
+    <link rel="canonical" href='http://jakarta.pm.org' />
   </head>
   
   <body>
@@ -33,7 +32,7 @@
               <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
                 <span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>
               </button>
-              <a class="navbar-brand" href="#">Jakarta.pm.org</a>
+              
             </div> <!-- /.navbar-header -->
             
             <div class="navbar-collapse collapse">
@@ -54,7 +53,17 @@
     	</div>
  	  </div> 
      </nav> <!-- /.navbar-wrapper -->
-  	  
+  	
+    
+    [% IF header_img_url %]
+    <header 
+ style='height:180px;background-color:gray;background-image:url([% header_img_url %]); background-position: center center; background-size: cover; width: 100%; display: block;position:relative;margin-top: -90px;'>
+    
+    </header>
+    [% END %]
+    
+    
+    
     <div class='container'>    
     	[% IF c.flash.status_msg %]
     		<div class='alert alert-info alert-dismissable'>
@@ -84,9 +93,58 @@
     -%]
     
 
-    <footer>
+    <footer>    
       <div class='container'>
-        &copy; Copyright Derek J. Curtis 2013         
+        <hr style='width:100%' />
+        <div class='row'>
+          <div class='col-md-12'>
+            &copy; Copyright Derek J. Curtis 2013 - <a href='http://www.summersetsoftware.com'>Summerset Software</a>
+          </div>
+        </div>
+        <div class='row'>
+        
+          <div class='col-md-2' style='border-right: #EEE;border-right-width: 1px;border-right-style: solid;'>
+            <nav>
+              <ul class='list-unstyled'>
+                  [%  PROCESS 'common/standard_nav.tt2';
+                      IF c.user_exists;
+                          PROCESS 'common/authenticated_nav.tt2';
+                      ELSE;
+                          # PROCESS 'common/anon_nav.tt2';
+                      END; 
+                  -%]
+              </ul>
+            </nav>         
+          </div>
+        
+          <div class='col-md-4'>
+            <div>
+              <script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>
+              <div class="g-plusone" data-size="medium" data-width="300"></div>              
+            </div>
+            
+            <div>
+              <div id="fb-root"></div>
+              <script>(function(d, s, id) {
+                var js, fjs = d.getElementsByTagName(s)[0];
+                if (d.getElementById(id)) return;
+                js = d.createElement(s); js.id = id;
+                js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=265870410211330";
+                fjs.parentNode.insertBefore(js, fjs);
+              }(document, 'script', 'facebook-jssdk'));</script>
+              <div class="fb-like" data-href="http://jakarta.pm.org" data-width="450" data-layout="button_count" data-show-faces="true" data-send="false"></div>
+            </div>
+            
+            <div>
+              <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jakarta.pm.org" data-via="derekjcurtis">Tweet</a>
+              <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+            </div>
+            
+          </div>
+          
+          <div class='col-md-4'></div>
+          
+        </div>         
       </div>
     </footer>
 

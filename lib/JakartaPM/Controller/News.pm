@@ -133,6 +133,16 @@ TODO: pagination here
 
 =cut
 
+sub auto : Private {
+    my ( $self, $c ) = @_;
+    
+    $c->stash( 
+        active_nav_id   => 'nav-news', 
+        header_img_url  => '/static/images/mail.jpg',
+    );
+    
+}
+
 sub news_publisher_required : PathPart('news') Chained('/members/login_required') CaptureArgs(0) {
     my ( $self, $c ) = @_;
     

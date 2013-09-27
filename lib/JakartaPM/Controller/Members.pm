@@ -251,8 +251,7 @@ sub register :Chained('anon_required') :PathPart('register') :Args(0) {
             $c->detach();
         }
         else {
-            # form didn't validate =(
-            $c->flash( error_msg => 'UGH.. common bro!  Check your form data again.' );            
+            # form didn't validate         
         }        
     }
     

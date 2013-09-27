@@ -4,7 +4,7 @@ use DateTime;
 extends 'HTML::FormHandler::Model::DBIC';
 
 has '+is_html5' => ( default => 1 );
-
+has '+widget_wrapper' => ( default => 'Bootstrap3' );
 
 has_field 'summary' => ( type => 'Text', required => 1 );
 has_field 'description' => ( type => 'TextArea', required => 1 );

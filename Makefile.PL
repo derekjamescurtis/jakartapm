@@ -33,7 +33,7 @@ requires 'MooseX::MarkAsMethods' => '0.15';
 requires 'MooseX::NonMoose' => '0.23';
 
 # web forms (don't code your own!)
-requires 'HTML::FormHandler' => '0.40027';
+requires 'HTML::FormHandler' => '0.40050';
 requires 'HTML::FormHandler::Model::DBIC' => '0.26';
 requires 'Email::Valid' => '0.190'; # required for automatic validation of e-mail fields
 requires 'Locale::SubCountry' => '1.62'; # automatic population of country/province names

@@ -1,7 +1,66 @@
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Login <b class="caret"></b></a>
-  <ul class="dropdown-menu">
-    <li><a href='[% c.uri_for(c.controller('Members').action_for('login')) %]'>Login</a></li> 
-    <li><a href='[% c.uri_for(c.controller('Members').action_for('register')) %]'>Register</a></li>
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Login/Register <b class="caret"></b></a>
+  <ul class="dropdown-menu" style='width:300px'>
+    <li>    
+      <div class="panel-group" id="accordion">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h4 class="panel-title">                
+              <a href='#'>Login</a>                
+            </h4>
+          </div>
+          <div id="nav-login-panel" class="panel-collapse collapse in">
+            <div class="panel-body">
+              [% login_form.render %]
+            </div>
+          </div>
+        </div>
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            <h4 class="panel-title">
+              <a href='#'>Register</a>
+            </h4>
+          </div>
+          <div id="nav-register-panel" class="panel-collapse collapse">
+            <div class="panel-body">
+              [% register_form.render %]
+            </div>
+          </div>
+        </div>
+      </div>
+    </li>
   </ul>
 </li>
+
+
+
+
+
+
+
+[% post_js_includes = BLOCK %]
+<script>
+
+  // TODO: refactor this so it doesn't suck.  Also, this will overwrite any of the other post_js_includes on other pages since it's called
+  // on every page view where the user isn't logged in.. 
+  var visible_id = 'nav-login-panel';  
+  $('.panel-heading').click(function(event) {  
+  
+	  if (visible_id == 'nav-register-panel') {
+		  $("#nav-login-panel").collapse('show');
+		  $("#nav-register-panel").collapse('hide');		  
+		  visible_id = 'nav-login-panel';
+	  }
+	  else {
+		  $("#nav-login-panel").collapse('hide');
+          $("#nav-register-panel").collapse('show');          
+          visible_id = 'nav-register-panel';
+	  }	  
+	  return false;	  
+  });
+  
+
+
+
+</script>
+[% END %]

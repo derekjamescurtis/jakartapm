@@ -45,6 +45,16 @@ URL: /events/{year}/{month}
 
 =cut
 
+sub auto : Private {
+    my ( $self, $c ) = @_;
+    
+    $c->stash( 
+        active_nav_id   => 'nav-calendar', 
+        header_img_url  => '/static/images/jakarta-houses.jpg',
+    );
+    
+}
+
 sub assert_event_publisher : PathPart('events') Chained('/members/login_required') CaptureArgs(0) {
     my ( $self, $c ) = @_;
     

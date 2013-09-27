@@ -33,10 +33,6 @@ sub get_provinces_json {
     my ( $self, $c ) = @_;
 }
 
-
-
-
-
 sub get_comment_pages :Path('comment/page-count') :Args(1) {
     my ( $self, $c, $slug ) = @_;
     
@@ -57,7 +53,6 @@ sub get_comment_pages :Path('comment/page-count') :Args(1) {
 }
 
 
-
 =head2 end
 
 
@@ -66,7 +61,7 @@ sub get_comment_pages :Path('comment/page-count') :Args(1) {
 sub end :ActionClass('RenderView') {
     my ($self, $c) = @_;
     
-    $c->forward($c->view('AJAX')) unless $c->response->body;    
+    $c->forward($c->view('AJAX')) unless $c->res->body;    
 }
 
 =encoding utf8
