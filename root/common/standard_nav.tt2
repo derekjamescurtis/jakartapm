@@ -7,9 +7,9 @@
     SET mailinglist_uri = 'http://mail.pm.org/mailman/listinfo/jakarta-pm';
 %]
 
-<li><a href='[% home_uri %]'>Home</a></li>
-<li><a href='[% about_uri %]'>About</a></li>
-<li><a href='[% news_uri %]'>News</a></li>
-<li><a href='[% calendar_uri %]'>Events</a></li>
-<li><a href='[% contact_uri %]'>Contact</a></li>
-<li><a href='[% mailinglist_uri %]'>Mailing List</a>
+<li id='nav-home'><a href='[% home_uri %]'>Home</a></li>
+<li id='nav-about'><a href='[% about_uri %]'>About</a></li>
+<li id='nav-news'><a href='[% news_uri %]'>News</a></li>
+<li id='nav-calendar'><a href='[% calendar_uri %]'>Events</a></li>
+<li id='nav-contact'><a href='[% contact_uri %]'>Contact</a></li>
+<li id='nav-mailinglist'><a href='[% mailinglist_uri %]'>Mailing List</a>

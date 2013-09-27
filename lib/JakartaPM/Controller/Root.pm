@@ -29,7 +29,10 @@ The root page (/)
 sub index :Path :Args(0) {
     my ( $self, $c ) = @_;
     
-    
+    $c->stash( 
+        active_nav_id => 'nav-home',
+        no_content_container => 1, 
+    );
 }
 
 =head2 about

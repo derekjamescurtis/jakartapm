@@ -14,30 +14,47 @@
     <!-- TODO: include minified -->
     [% END %]
     
+    <link rel='shortcut icon' href='/static/images/catalyst-favicon.ico' />
+    
+    
+    <link href="/static/css/carousel.css" rel="stylesheet">
+    <style id="holderjs-style" type="text/css">.holderjs-fluid {font-size:16px;font-weight:bold;text-align:center;font-family:sans-serif;margin:0}</style>
   </head>
   
   <body>
   
-    
-  
-  
-    <header class='container'>
-    	<nav>
-		    [% IF c.user_exists %]		    
-			    [% PROCESS 'common/authenticated_nav.tt2' %]
-            [% ELSE %]
-                [% PROCESS 'common/anon_nav.tt2' %]
-		    [% END %]
-    	</nav>
-    	
-    	<nav>    	
-			<ul>
-				[% PROCESS 'common/standard_nav.tt2' %]
-			</ul>
-		</nav>
-    	
-    </header> 
-
+    <nav class='navbar-wrapper'>
+      <div class='container'>
+         
+        <div class="navbar navbar-inverse navbar-static-top">
+          <div class='container'>
+            
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>
+              </button>
+              <a class="navbar-brand" href="#">Jakarta.pm.org</a>
+            </div> <!-- /.navbar-header -->
+            
+            <div class="navbar-collapse collapse">
+              <ul class="nav navbar-nav">
+                [% PROCESS 'common/standard_nav.tt2' %]
+              </ul>
+              <ul class="nav navbar-nav navbar-right">
+                [%  IF c.user_exists;           
+                        PROCESS 'common/authenticated_nav.tt2';
+                    ELSE;
+                        PROCESS 'common/anon_nav.tt2';
+                    END; 
+                -%]
+              </ul>
+            </div><!--/.nav-collapse -->
+            
+    	  </div>
+    	</div>
+ 	  </div> 
+     </nav> <!-- /.navbar-wrapper -->
+  	  
     <div class='container'>    
     	[% IF c.flash.status_msg %]
     		<div class='alert alert-info alert-dismissable'>
@@ -51,9 +68,21 @@
     			[% c.flash.error_msg %] 
     		</div>
     	[% END %]
-    	
-    	[% content %]
+    
+      <!-- 
+        By default we wrap our content up in a 'container' element.. but
+        On pages like /root/index we want to specify our own container element. -->
+      [% UNLESS no_content_container;	
+    	  content;
+         END; 
+      -%]
     </div>
+    
+    [% IF no_content_container; 
+        content;
+       END; 
+    -%]
+    
 
     <footer>
       <div class='container'>
@@ -65,7 +94,8 @@
     <!-- Javascript Includes -->
     [% IF c.debug %]
       <script src='/static/jquery-1.10.1/jquery.js'></script>
-      <script src='/static/bootstrap-3.0.0/js/bootstrap.js'></script>      
+      <script src='/static/bootstrap-3.0.0/js/bootstrap.js'></script>  
+      <script src='/static/js/holder.js'></script>    
     [% ELSE %]
       <!-- TODO: add cdn + minified javascript -->
     [% END %]
@@ -77,6 +107,14 @@
 	       PROCESS 'common/google_analytics.tt2';      
 	   END;
 	-%]
+	
+	<!-- Navigation highlighting -->
+	<script>
+      var nav_to_highlight = "[% active_nav_id || undef %]";
+      if (nav_to_highlight) {
+    	  $('#' + nav_to_highlight).addClass('active');
+      }
+    </script>
 
   </body>
 </html>
