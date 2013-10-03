@@ -18,11 +18,9 @@ use Catalyst::Runtime 5.80;
 
 use Catalyst qw/
     ConfigLoader
-    Static::Simple
     Session
     Session::Store::FastMmap
     Session::State::Cookie
-    Unicode::Encoding
     RequireSSL
     Authentication
     Authorization::Roles
@@ -44,6 +42,7 @@ our $VERSION = '0.01';
 
 __PACKAGE__->config(
     name => 'JakartaPM',
+    encoding => 'UTF-8',
     # Disable deprecated behavior needed by old applications
     disable_component_resolution_regex_fallback => 1,
     enable_catalyst_header => 1, # Send X-Catalyst header    
