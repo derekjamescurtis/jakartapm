@@ -19,7 +19,10 @@ to implement if/when I want to have this feature enabled
         <div class="carousel-caption">
           <h1 style='text-shadow: 1px 1px 9px #000000;filter: dropshadow(color=#000000, offx=1, offy=1);'>Welcome to Jakarta Perl Mongers!</h1>
           <p style='text-shadow: 1px 1px 9px #000000;filter: dropshadow(color=#000000, offx=1, offy=1);'>A community of Perl programmers in Jakarta, Indonesia.</p>
-          <p><a class="btn btn-large btn-primary" href="#">Sign up today</a></p>
+          <p>
+            <a class="btn btn-lg btn-primary" href="[% c.uri_for( c.controller('Members').action_for('register') ) %]"><span class='glyphicon glyphicon-pencil'></span> Create an Account</a>
+            <a class="btn btn-lg btn-primary" href="http://mail.pm.org/mailman/listinfo/jakarta-pm"><span class='glyphicon glyphicon-envelope'></span> Join the Mailing List</a>
+          </p>
         </div>
       </div>
     </div>
@@ -72,12 +75,12 @@ to implement if/when I want to have this feature enabled
     <div class="col-md-7">
       <h2 class="featurette-heading">New to Perl?</h2>
       <p class="lead">
-        Perlis a language that's been around since the early days of the web and still has a vibrant community to this day.
-        The Perl interpreter ships by default with Linux and Mac OS.  It's also incredibly easy to install and use on Windows.
+        Perl is a language that's been around since the early days of the web and still has a vibrant community to this day.
+        The Perl interpreter ships by default with Linux and Mac OS.  It's also incredibly easy to install and use on Windows
+        using either <a href='http://strawberryperl.com/'>Strawberry Perl</a> or <a href='http://www.activestate.com/activeperl'>ActivePerl</a>.
         In addition to the interpreter, perl ships with a package manager called cpan and includes build scripts that ship
         with the core language features.  You can have a look around at the available Perl modules 
         <a href='http://www.cpan.org/'>cpan.org</a> or <a href='http://www.metacpan.org/'>metacpan.org</a>.
-        ---- <!-- TODO: links to learning stuff here -->Links to learning perl stuff ehre ----
       </p>
     </div>
   </div>
@@ -90,11 +93,11 @@ to implement if/when I want to have this feature enabled
       <p class='lead'>
         I've developed this site to serve two purposes:  The first is the standard funtion of this site --
         allow for organizing of events and news, in addition to the mailing list.  The second, is to display
-        an example of how to properly build a site using one of the most popular Perl MVC frameworks -- Catalyst.
-        The full source is available <a href='https://github.com/derekjamescurtis/jakartapm'>here, on Github</a>.  In addition to Catalyst, Perl also has two 
-        other popular web frameworks in widespread use: Dancer, (a microframework) and Mojolicious (An event-driven,
-        non-blocking framework).  All three are great, but Catalyst is the most mature of the group so that's what 
-        I wanted to present the example in.
+        an example of how to properly build a site using one of the most popular Perl MVC frameworks -- <a href='http://www.catalystframework.org/'>Catalyst</a>.
+        The full source is available <a href='https://github.com/derekjamescurtis/jakartapm'>here, on Github</a>.  
+        In addition to Catalyst, Perl also has two 
+        other popular web frameworks in widespread use: <a href='http://perldancer.org/'>Dancer</a>, (a microframework, which is really much more suited to a small site
+        like this) and <a href='http://mojolicio.us'>Mojolicious</a> (An event-driven, non-blocking framework).
       </p>      
     </div>
     <div class="col-md-2">
@@ -106,30 +109,5 @@ to implement if/when I want to have this feature enabled
 
 
   <div>
-  
-    <!-- Button trigger modal -->
-    <a data-toggle="modal" href="#myModal" class="btn btn-primary btn-lg">Launch demo modal</a>
-  
-    <!-- Modal -->
-    <div class="modal" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h4 class="modal-title">Logging In</h4>
-          </div>
-          <div class="modal-body">
-            <div class="progress progress-striped active">
-              <div class="progress-bar"  role="progressbar" aria-valuenow="1" aria-valuemin="0" aria-valuemax="1" style="width: 100%">
-                <span class="sr-only">Logging In. Please Wait.</span>
-              </div>
-            </div>
-          </div>
-        </div><!-- /.modal-content -->
-      </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
-    
-  </div>
-  
-  <hr class="featurette-divider">
 
 </div><!-- /.container -->

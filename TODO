@@ -1,9 +1,13 @@
 article_detail needs to have a back link to article_list
-
 locked articles
-
 superuser list/delete/edit members
-
 ical downloads
 
 unit tests and such
+index page heading text doesn't stand out enough against teh background -- darken the drop shadow.
+attribution page
+i18n/l10n
+login/register dropdown not styled properly
+
+bottom nav links have the same ids -- fix
+bottom nav links showing dd when logged in.. fix..

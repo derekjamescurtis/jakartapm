@@ -28,7 +28,7 @@ has_field 'username' => ( type => 'Text', label => 'Username', required => 1, mi
 has_field 'password' => (  type => 'Password', label => 'Password', required => 1, minlength => 6,  apply => [ NotAllDigits, ], ); # min length defaults to 6.. but just wanted to be verbose
 has_field 'password_confirm' => ( type => 'PasswordConf', label => 'Confirm Password', required => 1, );
 has_field 'email' => ( type => 'Email', label => 'E-mail Address', required => 1, );
-has_field 'submit' => ( type => 'Submit', element_class => 'btn btn-primary', value => 'Login', );
+has_field 'submit' => ( type => 'Submit', element_class => 'btn btn-primary', value => 'Register', );
 
 
 

@@ -1,3 +1,48 @@
-[% title = 'About Us' %]
+[% title = 'About Perl Mongers' %]
 
 <h1>About</h1>
+
+<p>
+    First off, this site is definitely a work in progress.. Some time when I have another 5 hours or so to sit down
+    and polish this off, I will do so.  With that out of the way...
+</p>
+
+<h2>What Is Perl Mongers</h2>
+<p>
+    <a href='http://www.perl.com/pub/1999/01/foy.html'>This interview explains is pretty well.</a>  It's generally
+    a social meetup of Perl developers that occasionally involves some casual tech talks.  Some groups have even
+    had social coding sessions.  If you're interested in anything like that, please hop on the mailing list and
+    let us (me) know! 
+</p>
+
+<h2>What is this site</h2>
+<p>
+    This site serves a few purposes.  First off, it exists to advertise the existance of a Perl Mongers group
+    here in Jakarta, Indonesia.  On paper, there are two groups in the country, but in reality neither has
+    been that active.  Purpose number 1 accomplished, the next goal of this site is to provide a place where
+    various news/events can be published.  Lastly, I've build this site in Perl using Catalyst Framework.  
+    I've placed the code in a public repository on Github, which I hope will help anyone interested in learning
+    Catalyst, over the initial hump with learning how to structure and build Catalyst Framework apps. 
+</p>
+
+<h2>Hey, this is in English!</h2>
+<p>
+    Maaf, saya baru di Indonesia dan mengerti sedikit bahasa aja!  I'll be translating this
+    into Bahasa just as soon as possible (but hey, if you're a Perl programmer, chances are you
+    know enough English to make sense of this site anyway).
+</p>
+
+<h2>Acknowledgements</h2>    
+<p>
+    Some of the artwork used on this site has been graciously licensed under the Creative Commons License.
+    Regardless of whether or not the particular work was noted as attribution required, I'm going to link
+    back to them anyway.  In addition, this site uses the excellent twitter bootstrap 3 framework.
+</p>
+<p>
+    <a href='http://www.flickr.com/photos/103421763@N05/galleries/72157635943768776/'>Lightbox of media on this site</a>
+</p>
+
+<h2>Github Repo</h2>
+<p>
+    The full source code for this site can be found <a href='https://github.com/derekjamescurtis/jakartapm'>here on Github</a>.
+</p>
