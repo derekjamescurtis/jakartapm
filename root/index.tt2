@@ -61,7 +61,7 @@ to implement if/when I want to have this feature enabled
     </div>
     <div class="col-md-3">
       <a href='http://www.pm.org/'>      
-        <img class="featurette-image img-responsive" src="/static/images/perl-onion.png" alt="Perl Onion Logo">
+        <img class="featurette-image img-responsive" src="/static/images/perl-onion.png" alt="Perl Onion Logo" style='max-height:270px;max-width:270px;'>
       </a>
     </div>
   </div>
