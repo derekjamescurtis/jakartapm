@@ -1,22 +1,17 @@
-use utf8;
 package JakartaPM::Schema::SiteDB::Result::User;
-
-# Created by DBIx::Class::Schema::Loader
-# DO NOT MODIFY THE FIRST PART OF THIS FILE
+use Modern::Perl '2010';
+use Moose;
+use MooseX::NonMoose;
+use MooseX::MarkAsMethods autoclean => 1;
+use Carp;
+use DateTime;
+use Crypt::SaltedHash;
+use String::Random;
+extends 'DBIx::Class::Core';
 
 =head1 NAME
 
 JakartaPM::Schema::SiteDB::Result::User
-
-=cut
-
-use strict;
-use warnings;
-
-use Moose;
-use MooseX::NonMoose;
-use MooseX::MarkAsMethods autoclean => 1;
-extends 'DBIx::Class::Core';
 
 =head1 COMPONENTS LOADED
 
@@ -150,19 +145,11 @@ __PACKAGE__->add_columns(
   "is_active",
   { data_type => "tinyint", default_value => 1, is_nullable => 0 },
   "confirmation_date",
-  {
-    data_type => "datetime",
-    datetime_undef_if_invalid => 1,
-    is_nullable => 1,
-  },
+  { data_type => "datetime", datetime_undef_if_invalid => 1, is_nullable => 1, },
   "confirmation_key",
   { data_type => "varchar", is_nullable => 1, size => 45 },
   "reset_date",
-  {
-    data_type => "datetime",
-    datetime_undef_if_invalid => 1,
-    is_nullable => 1,
-  },
+  { data_type => "datetime", datetime_undef_if_invalid => 1, is_nullable => 1, },
   "reset_key",
   { data_type => "varchar", is_nullable => 1, size => 45 },
   "about_me",
@@ -174,11 +161,7 @@ __PACKAGE__->add_columns(
   "country",
   { data_type => "varchar", is_nullable => 1, size => 3 },
   "last_active",
-  {
-    data_type => "datetime",
-    datetime_undef_if_invalid => 1,
-    is_nullable => 1,
-  },
+  { data_type => "datetime", datetime_undef_if_invalid => 1, is_nullable => 1, },
 );
 
 =head1 PRIMARY KEY
@@ -315,18 +298,7 @@ Composing rels: L</events_attending> -> event
 
 __PACKAGE__->many_to_many("events", "events_attending", "event");
 
-
-# Created by DBIx::Class::Schema::Loader v0.07036 @ 2013-09-12 12:30:39
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:Jd3T8reAkIvsdH5Cw+fueA
-
-
-use Carp;
-use Data::Dumper;
-use DateTime;
-use Crypt::SaltedHash;
-use String::Random;
-
-
+=head1 METHODS
 
 =head2 set_password(password)
 
@@ -432,6 +404,5 @@ sub generate_reset_key {
 }
 
 
-# You can replace this text with custom code or comments, and it will be preserved on regeneration
 __PACKAGE__->meta->make_immutable;
 1;

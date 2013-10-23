@@ -1,22 +1,13 @@
-use utf8;
 package JakartaPM::Schema::SiteDB::Result::Event;
-
-# Created by DBIx::Class::Schema::Loader
-# DO NOT MODIFY THE FIRST PART OF THIS FILE
-
-=head1 NAME
-
-JakartaPM::Schema::SiteDB::Result::Event
-
-=cut
-
-use strict;
-use warnings;
-
+use Modern::Perl '2010';
 use Moose;
 use MooseX::NonMoose;
 use MooseX::MarkAsMethods autoclean => 1;
 extends 'DBIx::Class::Core';
+
+=head1 NAME
+
+JakartaPM::Schema::SiteDB::Result::Event
 
 =head1 COMPONENTS LOADED
 
@@ -200,10 +191,5 @@ Composing rels: L</events_attending> -> attendee
 __PACKAGE__->many_to_many("attendees", "events_attending", "attendee");
 
 
-# Created by DBIx::Class::Schema::Loader v0.07036 @ 2013-09-12 12:24:56
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:POJH4qMmSLEGg4wbTo/95g
-
-
-# You can replace this text with custom code or comments, and it will be preserved on regeneration
 __PACKAGE__->meta->make_immutable;
 1;

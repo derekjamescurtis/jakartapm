@@ -1,22 +1,13 @@
-use utf8;
 package JakartaPM::Schema::SiteDB::Result::Article;
-
-# Created by DBIx::Class::Schema::Loader
-# DO NOT MODIFY THE FIRST PART OF THIS FILE
-
-=head1 NAME
-
-JakartaPM::Schema::SiteDB::Result::Article
-
-=cut
-
-use strict;
-use warnings;
-
+use Modern::Perl '2010';
 use Moose;
 use MooseX::NonMoose;
 use MooseX::MarkAsMethods autoclean => 1;
 extends 'DBIx::Class::Core';
+
+=head1 NAME
+
+JakartaPM::Schema::SiteDB::Result::Article
 
 =head1 COMPONENTS LOADED
 
@@ -105,17 +96,9 @@ __PACKAGE__->add_columns(
   "author_id",
   { data_type => "integer", is_foreign_key => 1, is_nullable => 0 },
   "pub_date",
-  {
-    data_type => "datetime",
-    datetime_undef_if_invalid => 1,
-    is_nullable => 0,
-  },
+  { data_type => "datetime", datetime_undef_if_invalid => 1, is_nullable => 0, },
   "modified_date",
-  {
-    data_type => "datetime",
-    datetime_undef_if_invalid => 1,
-    is_nullable => 1,
-  },
+  { data_type => "datetime", datetime_undef_if_invalid => 1, is_nullable => 1, },
   "is_locked",
   { data_type => "tinyint", default_value => 0, is_nullable => 0 },
   "slug",
@@ -180,12 +163,5 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-
-# Created by DBIx::Class::Schema::Loader v0.07036 @ 2013-09-09 09:49:32
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:6bI8aWkKXLzxugP0eMIEvg
-
-
-
-# You can replace this text with custom code or comments, and it will be preserved on regeneration
 __PACKAGE__->meta->make_immutable;
 1;
